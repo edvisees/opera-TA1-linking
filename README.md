@@ -1,3 +1,10 @@
+@ Setup:
+
+```bash
+bash install_pylucene.sh
+```
+
+
 # Usage:
 
 ```bash
