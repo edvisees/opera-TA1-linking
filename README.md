@@ -1,4 +1,4 @@
-@ Setup:
+# Setup:
 
 ```bash
 bash install_pylucene.sh
