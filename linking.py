@@ -13,6 +13,7 @@ from org.apache.lucene.index import DirectoryReader
 import json
 import sys
 import os
+from collections import defaultdict
 
 
 def data_cleaning(table_in, table_out):
@@ -44,13 +45,11 @@ def load_id2name(kb_path, alias_path):
             eid, name, type = tokens[2], tokens[3], tokens[1]
             src = tokens[0]
             if src == 'GEO':
-                info = tokens[12]
+                info = '{}\t{}'.format(tokens[12], tokens[8])
             elif src == 'WLL':
                 info = '\t'.join([tokens[26], tokens[27], tokens[28]])
             elif src == 'APB':
-                print(tokens)
                 info = tokens[35]
-                print(info)
             else:
                 info = ''
             id2name[eid] = name
@@ -119,6 +118,11 @@ class Searcher:
         
         return tables
 
+def iou(str1, str2):
+    tokens1 = set(str1.split())
+    tokens2 = set(str2.split())
+    return float(len(tokens1 & tokens2)) / len(tokens1 | tokens2)
+
 class EntityLinker(object):
     def __init__(self):
         self.searcher = Searcher('lucene_index/')
@@ -168,26 +172,37 @@ class EntityLinker(object):
         if len(filtered) == 1:
             return filtered
         elif len(filtered) == 0:
-            pass
+            return None
         else:
             candidates = filtered
 
         # filter by country
-        filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' or x['info'] == 'RU' or x['info'] == 'UA', candidates)
+        filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' 
+            or x['info'][:2] == 'RU' or x['info'][:2] == 'UA' or x['info'][3:] == 'country,state,region,...', candidates)
         if len(filtered) == 1:
             return filtered
         elif len(filtered) == 0:
-            pass
+            return None
         else:
             candidates = filtered
 
         return candidates
 
     def disamb(self, candidates, ent_name, ent_type, sentence):
-        print 'disamb:', candidates
-        
+        # print 'disamb:', candidates
         edit_score = [1./(abs(len(candidate['name']) - len(ent_name)) + 1) for candidate in candidates]
         context_score = [0 for _ in range(len(candidates))]
+        if ent_type == 'PER':
+            for c, candidate in enumerate(candidates):
+                info = candidate['info']
+                context_score[c] = iou(info, sentence) * 5
+                if 'Russia' in info or 'Ukraine' in info:
+                    context_score[c] += 1
+        elif ent_type == 'ORG':
+            for c, candidate in enumerate(candidates):
+                info = candidate['info']
+                context_score[c] = iou(info, sentence) * 5
+        
         scores = [0 for _ in range(len(candidates))]
         for i in range(len(candidates)):
             scores[i] = edit_score[i] + context_score[i]
@@ -198,9 +213,9 @@ class EntityLinker(object):
         candidates.sort(key=lambda x: -x['confidence'])
         return candidates
 
-    def query(self, ne):
+    def query(self, ne, sentence):
         ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
-        print(ent_name, ent_type)
+        # print(ent_name, ent_type)
 
         candidates = self.search_candidates(ent_name, 0)
         # print candidates
@@ -220,7 +235,46 @@ class EntityLinker(object):
         if len(candidates) == 1:
             candidates[0]['confidence'] = 1.0
             return candidates
-        return self.disamb(candidates, ent_name, ent_type, '')
+        return self.disamb(candidates, ent_name, ent_type, sentence)
+
+class TemporaryKB(object):
+    def __init__(self):
+        if os.path.isdir('tmp_index/'):
+            with open('tmp_index/count.txt', 'r') as f:
+                self.count = int(f.readline().strip())
+            # self.indexer = Indexer('tmp_index/')
+            self.searcher = Searcher('tmp_index/')
+        else:
+            os.mkdir('tmp_index/')
+            self.count = 0
+            with open('tmp_index/count.txt', 'w') as f:
+                f.write('{}'.format(self.count))
+            # self.indexer = Indexer('tmp_index/')
+            self.register('MH17', 'VEH')
+            
+            self.searcher = Searcher('tmp_index/')
+            self.register('T-34', 'VEH')
+
+    def register(self, name, type):
+        print 'registering:', name, type
+        indexer = Indexer('tmp_index/')
+        indexer.index('@{}'.format(self.count), name, name, type, '')
+        self.count += 1
+        with open('tmp_index/count.txt', 'w') as f:
+            f.write('{}'.format(self.count))
+        indexer.close()
+        # print '$$', self.searcher.find_by_name(name)
+
+    def query(self, ne):
+        ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
+        # print(ent_name, ent_type)
+        results = self.searcher.find_by_name(ent_name)
+        # print(results)
+        results = filter(lambda x: x['type'] == ent_type, results)
+        if results is None or len(results) == 0:
+            return  'none'
+        return results
+
 
 if __name__ == '__main__':
     import argparse
@@ -228,6 +282,7 @@ if __name__ == '__main__':
     parser.add_argument('--index', action='store_true')
     parser.add_argument('--query', action='store_true')
     parser.add_argument('--run', action='store_true')
+    parser.add_argument('--run_csr', action='store_true')
     parser.add_argument('--dir', type=str)
     args = parser.parse_args()
 
@@ -242,26 +297,97 @@ if __name__ == '__main__':
     elif args.run:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         linker = EntityLinker()
+        tmpkb = TemporaryKB()
         input_dir = args.dir
         for fname in os.listdir(input_dir):
             input_file = os.path.join(input_dir, fname)
             print input_file
             with open(input_file, 'r') as f:
                 json_doc = json.load(f)
+            null_ents = []
             for sentence in json_doc:
+                sent_text = sentence['inputSentence']
                 for ner in sentence['namedMentions']:
                     try:
-                        result = linker.query(ner)
-                        print(result)
+                        result = linker.query(ner, sent_text)
+                        # print result
                         ner['link_lorelei'] = result
+                        if result == 'none':
+                            null_ents.append(ner)
                     except:
                         ner['link_lorelei'] = 'none'
-                        print 'none'
+                        # print 'none'
+            # print(null_ents)
+            for null_ent in null_ents:
+                result = tmpkb.query(null_ent)
+                null_ent['link_lorelei'] = result
+            null_counter = defaultdict(int)
+            null_ents = filter(lambda x: x['link_lorelei'] == 'none', null_ents)
+            for null_ent in null_ents:
+                null_counter[(null_ent['mention'].lower(), null_ent['type'][7:10])] += 1
+            for (name, type), count in null_counter.items():
+                if count >= 5:
+                    tmpkb.register(name, type)
+            # tmpkb.register('test', 'test')
+            
+            with open(input_file, 'w') as f:
+                json.dump(json_doc, f, indent=1, sort_keys=True)
+    elif args.run_csr:
+        lucene.initVM(vmargs=['-Djava.awt.headless=true'])
+        linker = EntityLinker()
+        tmpkb = TemporaryKB()
+        input_dir = args.dir
+        for fname in os.listdir(input_dir):
+            input_file = os.path.join(input_dir, fname)
+            print input_file
+            with open(input_file, 'r') as f:
+                json_doc = json.load(f)
+            null_ents = []
+            for frame in json_doc['frames']:
+                if frame['@type'] != 'entity_evidence':
+                    continue
+                text = frame['provenance']['text'].encode('utf-8')
+                type = frame['interp']['type']
+                fringe = frame['interp']['fringe'] if 'fringe' in frame['interp'] else None
+                print text, type, fringe
+                ne = {'mention': text, 'type': type}
+                result = linker.query(ne, '')
+                if not fringe is None:
+                    fne = {'mention': text, 'type': type}
+                    fresult = linker.query(fne, '')
+                if result != 'none':
+                    print result
+                    if 'xref' not in frame['interp']:
+                        frame['interp']['xref'] = []
+                    frame['interp']['xref'].append({"@type": "db_reference", 
+                        "component": "opera.entities.edl.refkb.xianyang",
+                        "id": "refkb:{}".format(result[0]['id']), 
+                        "canonical_name": result[0]['CannonicalName'], 
+                        'score': result[0]['confidence']})
+            #             if result == 'none':
+            #                 null_ents.append(ner)
+            #         except:
+            #             ner['link_lorelei'] = 'none'
+            #             # print 'none'
+            # # print(null_ents)
+            # for null_ent in null_ents:
+            #     result = tmpkb.query(null_ent)
+            #     null_ent['link_lorelei'] = result
+            # null_counter = defaultdict(int)
+            # null_ents = filter(lambda x: x['link_lorelei'] == 'none', null_ents)
+            # for null_ent in null_ents:
+            #     null_counter[(null_ent['mention'].lower(), null_ent['type'][7:10])] += 1
+            # for (name, type), count in null_counter.items():
+            #     if count >= 5:
+            #         tmpkb.register(name, type)
+            # # tmpkb.register('test', 'test')
+            
             with open(input_file, 'w') as f:
                 json.dump(json_doc, f, indent=1, sort_keys=True)
     elif args.query:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker()
+        # linker = EntityLinker()
+        linker = TemporaryKB()
         while True:
             name = raw_input('name:')
             ntype = raw_input('type:')
