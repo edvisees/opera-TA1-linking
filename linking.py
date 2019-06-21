@@ -1,4 +1,7 @@
-# python2
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+import io
 import lucene
 from java.nio.file import Paths
 from org.apache.lucene.analysis.miscellaneous import LimitTokenCountAnalyzer
@@ -382,8 +385,8 @@ if __name__ == '__main__':
             #         tmpkb.register(name, type)
             # # tmpkb.register('test', 'test')
             
-            with open(input_file, 'w') as f:
-                json.dump(json_doc, f, indent=1, sort_keys=True)
+            with io.open(input_file, 'w', encoding='utf8') as f:
+                f.write(unicode(json.dumps(json_doc, indent=1, sort_keys=True, ensure_ascii=False)))
     elif args.query:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         # linker = EntityLinker()
