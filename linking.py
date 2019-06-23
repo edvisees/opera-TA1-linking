@@ -738,9 +738,9 @@ if __name__ == '__main__':
                 concept = row[2][1:]
                 result = linker.query({'mention': name, 'type': enttype}, '')
                 if result == 'none':
-                    print name, concept, 'none'
+                    print '{}\t{}\t{}'.format(name, concept, 'none')
                 else:
-                    print name, concept,
+                    out = '{}\t{}'.format(name, concept)
                     for r_id, refkb_entry in enumerate(result):
                         if r_id == 3:
                             break
@@ -752,11 +752,11 @@ if __name__ == '__main__':
                             if enttype == 'ldcOnt:GPE':
                                 info = refkb_entry['info'].split('\t')
                                 country = info[0]
-                                print (refkbid, refkbname, country),
+                                out += '\t[{}, {}, {}]'.format(refkbid, refkbname, country)
                             elif enttype == 'ldcOnt:PER':
                                 info = refkb_entry['info'].split('\t')
                                 country = info[0]
                                 title = info[1]
                                 org = info[2]
-                                print (refkbid, refkbname, country, title, org),
-                    print '*'
+                                out += '\t[{}, {}, {}, {}, {}]'.format(refkbid, refkbname, country, title, org)
+                    print out
