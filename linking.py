@@ -308,6 +308,11 @@ class TemporaryKB(object):
             return 'none'
 
 
+def format_kb_id(kb_id):
+    kb_prefix = "tmpkb" if '@' in kb_id else "refkb"
+    return "{}:{}".format(kb_prefix, kb_id)
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
@@ -453,7 +458,7 @@ if __name__ == '__main__':
                     frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
                     frame['interp']['xref'].append({"@type": "db_reference", 
                         "component": "opera.entities.edl.refkb.xianyang",
-                        "id": "refkb:{}".format(result[0]['id']), 
+                        "id": format_kb_id(result[0]['id']),
                         "canonical_name": result[0]['CannonicalName'], 
                         'score': result[0]['confidence'], 'subcomponent': 0})
                 else:
@@ -477,7 +482,7 @@ if __name__ == '__main__':
                     frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
                     frame['interp']['xref'].append({"@type": "db_reference", 
                         "component": "opera.entities.edl.refkb.xianyang",
-                        "id": "refkb:{}".format(result[0]['id']), 
+                        "id": format_kb_id(result[0]['id']),
                         "canonical_name": result[0]['CannonicalName'], 
                         'score': result[0]['confidence'], 'subcomponent': 1})
 
@@ -534,7 +539,7 @@ if __name__ == '__main__':
                                 frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
                                 frame['interp']['xref'].append({"@type": "db_reference", 
                                 "component": "opera.entities.edl.refkb.xianyang",
-                                "id": "refkb:{}".format(tid), 
+                                "id": format_kb_id(tid),
                                 "canonical_name": best_mention, 
                                 'score': 1.0, 'subcomponent': 2})
                 else:
@@ -592,7 +597,7 @@ if __name__ == '__main__':
     #                     frame['interp']['xref'] = []
     #                 frame['interp']['xref'].append({"@type": "db_reference", 
     #                     "component": "opera.entities.edl.refkb.xianyang",
-    #                     "id": "refkb:{}".format(result[0]['id']), 
+    #                     "id": format_kb_id(result[0]['id']),
     #                     "canonical_name": result[0]['CannonicalName'], 
     #                     'score': result[0]['confidence']})
             #             if result == 'none':
