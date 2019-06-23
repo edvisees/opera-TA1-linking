@@ -311,26 +311,28 @@ class TemporaryKB(object):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--index', action='store_true')
+    parser.add_argument('--index', nargs='?', const="LDC2018E80_LORELEI_Background_KB", default=None, type=str,
+                        help="clean and index reference KB (default dir: LDC2018E80_LORELEI_Background_KB)")
     parser.add_argument('--query', action='store_true')
     parser.add_argument('--run', action='store_true')
     parser.add_argument('--run_csr', action='store_true')
     parser.add_argument('--en', action='store_true')
     parser.add_argument('--ru', action='store_true')
+    parser.add_argument('--uk', action='store_true')
     parser.add_argument('--img', action='store_true')
     parser.add_argument('--in_dir', type=str)
     parser.add_argument('--out_dir', type=str)
     args = parser.parse_args()
 
     if args.index:
-        data_cleaning('LDC2018E80_LORELEI_Background_KB/data/entities.tab', 
-                        'LDC2018E80_LORELEI_Background_KB/data/cleaned.tab')
+        data_cleaning(os.path.join(args.index, 'data/entities.tab'),
+                        os.path.join(args.index, 'data/cleaned.tab'))
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         os.system('rm -rf lucene_index/')
         indexer = Indexer('lucene_index/')
         for eid, name, cname, type, info in load_id2name(
-                'LDC2018E80_LORELEI_Background_KB/data/cleaned.tab', 
-                'LDC2018E80_LORELEI_Background_KB/data/alternate_names.tab'):
+                os.path.join(args.index, 'data/cleaned.tab'),
+                os.path.join(args.index, 'data/alternate_names.tab')):
             indexer.index(eid, name, cname, type, info)
         indexer.close()
     elif args.run:
@@ -420,7 +422,7 @@ if __name__ == '__main__':
                     print text, enttype
                     ne = {'mention': text, 'type': enttype}
                     result = linker.query(ne, sent)
-                elif args.ru:
+                elif args.ru or args.uk:
                     fringe = frame['interp']['fringe'] if 'fringe' in frame['interp'] else None
                     print text, enttype, fringe
                     ne = {'mention': text, 'type': enttype}
