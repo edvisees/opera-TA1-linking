@@ -48,11 +48,13 @@ def load_id2name(kb_path, alias_path):
             eid, name, type = tokens[2], tokens[3], tokens[1]
             src = tokens[0]
             if src == 'GEO':
-                info = '{}\t{}'.format(tokens[12], tokens[8])
+                info = '\t'.join([tokens[12], tokens[8], tokens[46]])
             elif src == 'WLL':
                 info = '\t'.join([tokens[26], tokens[27], tokens[28]])
             elif src == 'APB':
                 info = tokens[35]
+            elif src == 'AIDA_AUG_PHASE1':
+                info = ''
             else:
                 info = ''
             id2name[eid] = name
@@ -179,6 +181,15 @@ class EntityLinker(object):
         else:
             candidates = filtered
 
+        # filter by wiki
+        filtered = filter(lambda x: x['info'].split('\t')[2] != '', candidates)
+        if len(filtered) == 1:
+            return filtered
+        elif len(filtered) == 0:
+            return None
+        else:
+            candidates = filtered
+
         # filter by country
         filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' 
             or x['info'][:2] == 'RU' or x['info'][:2] == 'UA' or x['info'][3:] == 'country,state,region,...', candidates)
@@ -217,28 +228,32 @@ class EntityLinker(object):
         return candidates
 
     def query(self, ne, sentence):
-        ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
-        # print(ent_name, ent_type)
+        try:
+            ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
+            # print(ent_name, ent_type)
 
-        candidates = self.search_candidates(ent_name, 0)
-        # print candidates
-        candidates = self.filter_candidates(candidates, ent_name, ent_type)
-        # print candidates
-        if candidates is None or len(candidates) == 0:
-            for dist in range(min(5, len(ent_name)//5)):
-                candidates = self.search_candidates(ent_name, dist+1)
-                # print candidates
-                candidates = self.filter_candidates(candidates, ent_name, ent_type)
-                # print candidates
-                if candidates is not None and len(candidates) > 0:
-                    break
-        
-        if candidates is None or len(candidates) == 0:
+            candidates = self.search_candidates(ent_name, 0)
+            # print candidates
+            candidates = self.filter_candidates(candidates, ent_name, ent_type)
+            # print candidates
+            if candidates is None or len(candidates) == 0:
+                for dist in range(min(5, len(ent_name)//5)):
+                    candidates = self.search_candidates(ent_name, dist+1)
+                    # print candidates
+                    candidates = self.filter_candidates(candidates, ent_name, ent_type)
+                    # print candidates
+                    if candidates is not None and len(candidates) > 0:
+                        break
+            
+            if candidates is None or len(candidates) == 0:
+                return 'none'
+            if len(candidates) == 1:
+                candidates[0]['confidence'] = 1.0
+                return candidates
+            return self.disamb(candidates, ent_name, ent_type, sentence)
+
+        except:
             return 'none'
-        if len(candidates) == 1:
-            candidates[0]['confidence'] = 1.0
-            return candidates
-        return self.disamb(candidates, ent_name, ent_type, sentence)
 
 class TemporaryKB(object):
     def __init__(self):
@@ -246,7 +261,7 @@ class TemporaryKB(object):
             with open('tmp_index/count.txt', 'r') as f:
                 self.count = int(f.readline().strip())
             # self.indexer = Indexer('tmp_index/')
-            self.searcher = Searcher('tmp_index/')
+            # self.searcher = Searcher('tmp_index/')
         else:
             os.mkdir('tmp_index/')
             self.count = 0
@@ -254,9 +269,8 @@ class TemporaryKB(object):
                 f.write('{}'.format(self.count))
             # self.indexer = Indexer('tmp_index/')
             self.register('MH17', 'VEH')
-            
-            self.searcher = Searcher('tmp_index/')
             self.register('T-34', 'VEH')
+            # self.searcher = Searcher('tmp_index/')
 
     def register(self, name, type):
         print 'registering:', name, type
@@ -267,16 +281,31 @@ class TemporaryKB(object):
             f.write('{}'.format(self.count))
         indexer.close()
         # print '$$', self.searcher.find_by_name(name)
+        return '@{}'.format(self.count-1)
 
     def query(self, ne):
-        ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
-        # print(ent_name, ent_type)
-        results = self.searcher.find_by_name(ent_name)
-        # print(results)
-        results = filter(lambda x: x['type'] == ent_type, results)
-        if results is None or len(results) == 0:
-            return  'none'
-        return results
+        try:
+            ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
+            # print 'querying', ent_name, ent_type
+            # print(ent_name, ent_type)
+            searcher = Searcher('tmp_index/')
+            results = searcher.find_by_name(ent_name)
+            # print(results)
+            results = filter(lambda x: x['type'] == ent_type, results)
+            if results is None or len(results) == 0:
+                return 'none'
+
+            confsum = 0
+            for result in results:
+                score = 1. / (abs(len(result['name']) - len(ent_name)) + 1)
+                result['confidence'] = score
+                confsum += score
+            for result in results:
+                result['confidence'] /= confsum
+            results.sort(key=lambda x: -x['confidence'])
+            return results
+        except:
+            return 'none'
 
 
 if __name__ == '__main__':
@@ -286,15 +315,22 @@ if __name__ == '__main__':
     parser.add_argument('--query', action='store_true')
     parser.add_argument('--run', action='store_true')
     parser.add_argument('--run_csr', action='store_true')
-    parser.add_argument('--dir', type=str)
+    parser.add_argument('--en', action='store_true')
+    parser.add_argument('--ru', action='store_true')
+    parser.add_argument('--img', action='store_true')
+    parser.add_argument('--in_dir', type=str)
+    parser.add_argument('--out_dir', type=str)
     args = parser.parse_args()
 
     if args.index:
-        data_cleaning('LDC2018E80_LORELEI_Background_KB/data/entities.tab', 'LDC2018E80_LORELEI_Background_KB/data/cleaned.tab')
+        data_cleaning('LDC2018E80_LORELEI_Background_KB/data/entities.tab', 
+                        'LDC2018E80_LORELEI_Background_KB/data/cleaned.tab')
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         os.system('rm -rf lucene_index/')
         indexer = Indexer('lucene_index/')
-        for eid, name, cname, type, info in load_id2name('LDC2018E80_LORELEI_Background_KB/data/cleaned.tab', 'LDC2018E80_LORELEI_Background_KB/data/alternate_names.tab'):
+        for eid, name, cname, type, info in load_id2name(
+                'LDC2018E80_LORELEI_Background_KB/data/cleaned.tab', 
+                'LDC2018E80_LORELEI_Background_KB/data/alternate_names.tab'):
             indexer.index(eid, name, cname, type, info)
         indexer.close()
     elif args.run:
@@ -339,34 +375,224 @@ if __name__ == '__main__':
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         linker = EntityLinker()
         tmpkb = TemporaryKB()
-        input_dir = args.dir
+        input_dir = args.in_dir
         for fname in os.listdir(input_dir):
             input_file = os.path.join(input_dir, fname)
             print input_file
             with open(input_file, 'r') as f:
                 json_doc = json.load(f)
-            null_ents = []
+
+            ent_clusters = []
+            for frame in json_doc['frames']:
+                if frame['@type'] == 'relation_evidence' and frame['interp']['type'] == 'aida:entity_coreference':
+                    cluster = []
+                    for arg in frame['interp']['args']:
+                        cluster.append(arg['arg'])
+                    ent_clusters.append(cluster)
+            # print ent_clusters
+
+            if args.en:
+                sentences = {}
+                for frame in json_doc['frames']:
+                    if frame['@type'] == 'sentence':
+                        sentences[frame['@id']] = frame['provenance']['text']
+                # print sentences
+
+            id2entity = {}
+            null_ents = set()
+            linked_ents = {}
+
             for frame in json_doc['frames']:
                 if frame['@type'] != 'entity_evidence':
                     continue
-                text = frame['provenance']['text'].encode('utf-8')
-                type = frame['interp']['type']
-                fringe = frame['interp']['fringe'] if 'fringe' in frame['interp'] else None
-                print text, type, fringe
-                ne = {'mention': text, 'type': type}
-                result = linker.query(ne, '')
-                if not fringe is None:
-                    fne = {'mention': text, 'type': type}
-                    fresult = linker.query(fne, '')
+                id2entity[frame['@id']] = frame
+                if 'form' not in frame['interp'] or frame['interp']['form'] != 'named':
+                    continue
+                if args.img:
+                    text = frame['label'].encode('utf-8')
+                else:
+                    text = frame['provenance']['text'].encode('utf-8')
+                enttype = frame['interp']['type']
+                if type(enttype) == list:
+                    enttype = enttype[0]['value']
+                if args.en:
+                    sent = sentences[frame['provenance']['reference']]
+                    print text, enttype
+                    ne = {'mention': text, 'type': enttype}
+                    result = linker.query(ne, sent)
+                elif args.ru:
+                    fringe = frame['interp']['fringe'] if 'fringe' in frame['interp'] else None
+                    print text, enttype, fringe
+                    ne = {'mention': text, 'type': enttype}
+                    result = linker.query(ne, '')
+                    if result != 'none' and not fringe is None:
+                        fne = {'mention': fringe[1:], 'type': enttype}
+                        fresult = linker.query(fne, '')
+                        if fresult != 'none':
+                            result_dict = dict([(ru_res['id'], ru_res) for ru_res in result])
+                            for en_res in fresult:
+                                if en_res['id'] in result_dict:
+                                    newscore = en_res['confidence'] + result_dict[en_res['id']]['confidence']
+                                    newscore = min(1.0, newscore)
+                                    result_dict[en_res['id']]['confidence'] = newscore
+                                else:
+                                    result_dict[en_res['id']] = en_res
+                            result = list(result_dict.values())
+                            result.sort(key=lambda x: -x['confidence'])
+                elif args.img:
+                    print text, enttype
+                    ne = {'mention': text, 'type': enttype}
+                    result = linker.query(ne, '')
+
                 if result != 'none':
                     print result
                     if 'xref' not in frame['interp']:
                         frame['interp']['xref'] = []
+                    frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
                     frame['interp']['xref'].append({"@type": "db_reference", 
                         "component": "opera.entities.edl.refkb.xianyang",
                         "id": "refkb:{}".format(result[0]['id']), 
                         "canonical_name": result[0]['CannonicalName'], 
-                        'score': result[0]['confidence']})
+                        'score': result[0]['confidence'], 'subcomponent': 0})
+                else:
+                    null_ents.add(frame['@id'])
+
+            for null_ent in null_ents:
+                frame = id2entity[null_ent]
+                if args.img:
+                    text = frame['label'].encode('utf-8')
+                else:
+                    text = frame['provenance']['text'].encode('utf-8')
+                enttype = frame['interp']['type']
+                if type(enttype) == list:
+                    enttype = enttype[0]['value']
+                ne = {'mention': text, 'type': enttype}
+                result = tmpkb.query(ne)
+                if result != 'none':
+                    print '****', result
+                    if 'xref' not in frame['interp']:
+                        frame['interp']['xref'] = []
+                    frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
+                    frame['interp']['xref'].append({"@type": "db_reference", 
+                        "component": "opera.entities.edl.refkb.xianyang",
+                        "id": "refkb:{}".format(result[0]['id']), 
+                        "canonical_name": result[0]['CannonicalName'], 
+                        'score': result[0]['confidence'], 'subcomponent': 1})
+
+            for coref_cluster in ent_clusters:
+                linked_ents = []
+                for eid in coref_cluster:
+                    frame = id2entity[eid]
+                    if 'xref' in frame['interp']:
+                        linked = None
+                        for link_res in frame['interp']['xref']:
+                            if link_res['component'] == "opera.entities.edl.refkb.xianyang":
+                                linked = link_res
+                                break
+                        if not linked is None:
+                            linked_ents.append(linked)
+                # print(linked_ents)
+                
+                if len(linked_ents) == 0:
+                    # register new KB entry
+                    mention_counter = defaultdict(int)
+                    for eid in coref_cluster:
+                        frame = id2entity[eid]
+                        if 'form' not in frame['interp'] or frame['interp']['form'] != 'named':
+                            continue
+                        mention = frame['provenance']['text']
+                        mention_counter[mention] += 1
+                    # print mention_counter
+                    best_mention = None
+                    max_count = 0
+                    for mention, count in mention_counter.items():
+                        if count > max_count:
+                            max_count = count
+                            best_mention = mention
+                        elif count == max_count:
+                            if len(mention) > len(best_mention):
+                                best_mention = mention
+                    if not best_mention is None:
+                        for eid in coref_cluster:
+                            if id2entity[eid]['provenance']['text'] == best_mention:
+                                enttype = id2entity[eid]['interp']['type']
+                                break
+                        if type(enttype) == list:
+                            enttype = enttype[0]['value']
+                        enttype = enttype[7:10]
+                        if enttype in ['GPE', 'LOC', 'FAC', 'PER', 'ORG', 'VEH', 'WEA']:
+                            for eid in coref_cluster:
+                                print '!', id2entity[eid]
+                            tid = tmpkb.register(best_mention.lower(), enttype)
+                            print tmpkb.query({'mention': best_mention, 'type': 'ldcOnt:'+enttype})
+                            for eid in coref_cluster:
+                                frame = id2entity[eid]
+                                if 'xref' not in frame['interp']:
+                                    frame['interp']['xref'] = []
+                                frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
+                                frame['interp']['xref'].append({"@type": "db_reference", 
+                                "component": "opera.entities.edl.refkb.xianyang",
+                                "id": "refkb:{}".format(tid), 
+                                "canonical_name": best_mention, 
+                                'score': 1.0, 'subcomponent': 2})
+                else:
+                    # coreferent mentions should be linked to the same entity
+                    votes = defaultdict(float)
+                    for linked in linked_ents:
+                        votes[linked['id']] += linked['score']
+                    max_vote = 0
+                    for eid, vote_score in votes.items():
+                        if vote_score > max_vote:
+                            max_vote = vote_score
+                            votedid = eid
+                    for linked in linked_ents:
+                        if linked['id'] == votedid:
+                            final_linking = linked
+                            break
+                    for eid in coref_cluster:
+                        frame = id2entity[eid]
+                        if 'xref' in frame['interp']:
+                            frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
+                            frame['interp']['xref'].append(final_linking)
+                        else:
+                            frame['interp']['xref'] = [final_linking]
+            
+            # with open(os.path.join(args.out_dir, fname), 'w') as f:
+            #     json.dump(json_doc, f, indent=1, sort_keys=True)
+            with io.open(os.path.join(args.out_dir, fname), 'w', encoding='utf8') as f:
+                f.write(unicode(json.dumps(json_doc, indent=1, sort_keys=True, ensure_ascii=False)))
+    # elif args.run_csr_ru:
+    #     lucene.initVM(vmargs=['-Djava.awt.headless=true'])
+    #     linker = EntityLinker()
+    #     tmpkb = TemporaryKB()
+    #     input_dir = args.dir
+    #     for fname in os.listdir(input_dir):
+    #         input_file = os.path.join(input_dir, fname)
+    #         print input_file
+    #         with open(input_file, 'r') as f:
+    #             json_doc = json.load(f)
+    #         null_ents = []
+    #         for frame in json_doc['frames']:
+    #             if frame['@type'] != 'entity_evidence':
+    #                 continue
+    #             text = frame['provenance']['text'].encode('utf-8')
+    #             type = frame['interp']['type']
+    #             fringe = frame['interp']['fringe'] if 'fringe' in frame['interp'] else None
+    #             print text, type, fringe
+    #             ne = {'mention': text, 'type': type}
+    #             result = linker.query(ne, '')
+    #             if not fringe is None:
+    #                 fne = {'mention': text, 'type': type}
+    #                 fresult = linker.query(fne, '')
+    #             if result != 'none':
+    #                 print result
+    #                 if 'xref' not in frame['interp']:
+    #                     frame['interp']['xref'] = []
+    #                 frame['interp']['xref'].append({"@type": "db_reference", 
+    #                     "component": "opera.entities.edl.refkb.xianyang",
+    #                     "id": "refkb:{}".format(result[0]['id']), 
+    #                     "canonical_name": result[0]['CannonicalName'], 
+    #                     'score': result[0]['confidence']})
             #             if result == 'none':
             #                 null_ents.append(ner)
             #         except:
@@ -385,8 +611,8 @@ if __name__ == '__main__':
             #         tmpkb.register(name, type)
             # # tmpkb.register('test', 'test')
             
-            with io.open(input_file, 'w', encoding='utf8') as f:
-                f.write(unicode(json.dumps(json_doc, indent=1, sort_keys=True, ensure_ascii=False)))
+            # with open(input_file, 'w') as f:
+            #     json.dump(json_doc, f, indent=1, sort_keys=True)
     elif args.query:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         # linker = EntityLinker()
