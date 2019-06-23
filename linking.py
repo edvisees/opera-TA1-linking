@@ -17,6 +17,7 @@ import json
 import sys
 import os
 from collections import defaultdict
+import csv
 
 
 def data_cleaning(table_in, table_out):
@@ -141,6 +142,71 @@ class EntityLinker(object):
             # print(query)
             return self.searcher.find_by_name(query)
         
+    def score_candidates(self, candidates, ent_name, ent_type):
+        # filter by type
+        if ent_type == 'GPE' or ent_type == 'LOC' or ent_type == 'FAC':
+            candidates = filter(lambda x: x['type'] in ['GPE', 'LOC'], candidates)
+        elif ent_type == 'ORG':
+            candidates = filter(lambda x: x['type'] == 'ORG', candidates)
+        elif ent_type == 'PER':
+            candidates = filter(lambda x: x['type'] == 'PER', candidates)
+        else:
+            return None
+
+        # remove duplication
+        candidate_ids = set()
+        filtered_candidates = []
+        for candidate in candidates:
+            if candidate['id'] in candidate_ids:
+                continue
+            candidate_ids.add(candidate['id'])
+            filtered_candidates.append(candidate)
+        candidates = filtered_candidates
+        if len(candidates) == 1:
+            return candidates
+
+        scores = [0 for _ in candidates]
+        # find exact match
+        for i, candidate in enumerate(candidates):
+            # print candidate['name'].lower(), ent_name
+            if candidate['name'].lower().encode('utf-8') == ent_name:
+                scores[i] += 1
+            elif ent_name in candidate['name'].lower().encode('utf-8'):
+                scores[i] += 0.5
+
+        # filter by type
+        for i, candidate in enumerate(candidates):
+            if candidate['type'] == ent_type:
+                scores[i] += 1
+
+        # filter by wiki
+        for i, candidate in enumerate(candidates):
+            if candidate['info'] == '': continue
+            if len(candidate['info'].split('\t')) == 3: # candidate['info'].split('\t')[2] != '':
+                scores[i] += 1
+
+        # filter by country
+        if ent_type == 'GPE' or ent_type == 'LOC':
+            for i, candidate in enumerate(candidates):
+                if candidate['info'] == '': continue
+                if candidate['info'].split('\t')[1] == 'country,state,region,...':
+                    scores[i] += 1
+                if candidate['info'].split('\t')[0] == 'RU' or candidate['info'].split('\t')[0] == 'UA':
+                    scores[i] += 1
+                if candidate['info'].split('\t')[0] == 'US' or candidate['info'].split('\t')[0] == 'CA':
+                    scores[i] -= 0.5
+
+        max_score = -1
+        final_candidates = None
+        for candidate, score in zip(candidates, scores):
+            if score > max_score:
+                max_score = score
+                final_candidates = [candidate]
+            elif score == max_score:
+                final_candidates.append(candidate)
+        # print candidates, scores
+        return final_candidates
+
     def filter_candidates(self, candidates, ent_name, ent_type):
         # filter by type
         if ent_type == 'GPE' or ent_type == 'LOC' or ent_type == 'FAC':
@@ -191,12 +257,20 @@ class EntityLinker(object):
             candidates = filtered
 
         # filter by country
-        filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' 
-            or x['info'][:2] == 'RU' or x['info'][:2] == 'UA' or x['info'][3:] == 'country,state,region,...', candidates)
+        filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' or 
+            x['info'].split('\t')[1] == 'country,state,region,...', candidates)
         if len(filtered) == 1:
             return filtered
         elif len(filtered) == 0:
-            return None
+            pass
+        else:
+            candidates = filtered
+        filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' or 
+            x['info'].split('\t')[0] == 'RU' or x['info'].split('\t')[0] == 'UA', candidates)
+        if len(filtered) == 1:
+            return filtered
+        elif len(filtered) == 0:
+            pass
         else:
             candidates = filtered
 
@@ -228,32 +302,33 @@ class EntityLinker(object):
         return candidates
 
     def query(self, ne, sentence):
+        ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
+        # print(ent_name, ent_type)
         try:
-            ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
-            # print(ent_name, ent_type)
-
             candidates = self.search_candidates(ent_name, 0)
-            # print candidates
-            candidates = self.filter_candidates(candidates, ent_name, ent_type)
-            # print candidates
-            if candidates is None or len(candidates) == 0:
-                for dist in range(min(5, len(ent_name)//5)):
-                    candidates = self.search_candidates(ent_name, dist+1)
-                    # print candidates
-                    candidates = self.filter_candidates(candidates, ent_name, ent_type)
-                    # print candidates
-                    if candidates is not None and len(candidates) > 0:
-                        break
-            
-            if candidates is None or len(candidates) == 0:
-                return 'none'
-            if len(candidates) == 1:
-                candidates[0]['confidence'] = 1.0
-                return candidates
-            return self.disamb(candidates, ent_name, ent_type, sentence)
-
         except:
             return 'none'
+        # print candidates
+        candidates = self.score_candidates(candidates, ent_name, ent_type)
+        # print candidates
+        if candidates is None or len(candidates) == 0:
+            for dist in range(min(5, len(ent_name)//5)):
+                try:
+                    candidates = self.search_candidates(ent_name, dist+1)
+                except:
+                    return 'none'
+                # print candidates
+                candidates = self.score_candidates(candidates, ent_name, ent_type)
+                # print candidates
+                if candidates is not None and len(candidates) > 0:
+                    break
+        
+        if candidates is None or len(candidates) == 0:
+            return 'none'
+        if len(candidates) == 1:
+            candidates[0]['confidence'] = 1.0
+            return candidates
+        return self.disamb(candidates, ent_name, ent_type, sentence)
 
 class TemporaryKB(object):
     def __init__(self):
@@ -319,6 +394,7 @@ if __name__ == '__main__':
     parser.add_argument('--index', nargs='?', const="LDC2018E80_LORELEI_Background_KB", default=None, type=str,
                         help="clean and index reference KB (default dir: LDC2018E80_LORELEI_Background_KB)")
     parser.add_argument('--query', action='store_true')
+    parser.add_argument('--query_tmp', action='store_true')
     parser.add_argument('--run', action='store_true')
     parser.add_argument('--run_csr', action='store_true')
     parser.add_argument('--en', action='store_true')
@@ -327,6 +403,7 @@ if __name__ == '__main__':
     parser.add_argument('--img', action='store_true')
     parser.add_argument('--in_dir', type=str)
     parser.add_argument('--out_dir', type=str)
+    parser.add_argument('--map_file', type=str)
     args = parser.parse_args()
 
     if args.index:
@@ -630,10 +707,56 @@ if __name__ == '__main__':
             #     json.dump(json_doc, f, indent=1, sort_keys=True)
     elif args.query:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        # linker = EntityLinker()
+        linker = EntityLinker()
+        while True:
+            name = raw_input('name:')
+            ntype = raw_input('type:')
+            ne = {'mention': name, 'type': 'ldcOnt:'+ntype}
+            print linker.query(ne, '')
+    elif args.query_tmp:
+        lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         linker = TemporaryKB()
         while True:
             name = raw_input('name:')
             ntype = raw_input('type:')
             ne = {'mention': name, 'type': 'ldcOnt:'+ntype}
             print linker.query(ne)
+    elif args.map_file:
+        lucene.initVM(vmargs=['-Djava.awt.headless=true'])
+        linker = EntityLinker()
+
+        if 'named_gpe' in args.map_file:
+            enttype = 'ldcOnt:GPE'
+        elif 'named_people' in args.map_file:
+            enttype = 'ldcOnt:PER'
+        with open(args.map_file, 'r') as f:
+            reader = csv.reader(f, delimiter=',')
+            for row in reader:
+                if row[0] != 'L':
+                    continue
+                name = row[1][1:]
+                concept = row[2][1:]
+                result = linker.query({'mention': name, 'type': enttype}, '')
+                if result == 'none':
+                    print name, concept, 'none'
+                else:
+                    print name, concept,
+                    for r_id, refkb_entry in enumerate(result):
+                        if r_id == 3:
+                            break
+                        refkbid = refkb_entry['id']
+                        refkbname = refkb_entry['CannonicalName']
+                        if refkb_entry['info'] == '':
+                            print (refkbid, refkbname),
+                        else:
+                            if enttype == 'ldcOnt:GPE':
+                                info = refkb_entry['info'].split('\t')
+                                country = info[0]
+                                print (refkbid, refkbname, country),
+                            elif enttype == 'ldcOnt:PER':
+                                info = refkb_entry['info'].split('\t')
+                                country = info[0]
+                                title = info[1]
+                                org = info[2]
+                                print (refkbid, refkbname, country, title, org),
+                    print '*'
