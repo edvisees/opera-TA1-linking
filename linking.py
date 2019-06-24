@@ -420,6 +420,9 @@ if __name__ == '__main__':
     parser.add_argument('--map_file', type=str)
     args = parser.parse_args()
 
+    if not os.path.exists(args.out_dir):
+        os.makedirs(args.out_dir)
+
     if args.index:
         data_cleaning(os.path.join(args.index, 'data/entities.tab'),
                         os.path.join(args.index, 'data/cleaned.tab'))
