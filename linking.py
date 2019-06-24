@@ -480,6 +480,8 @@ if __name__ == '__main__':
 
         input_dir = args.in_dir
         for fname in os.listdir(input_dir):
+            if not fname.endswith(".csr.json"):
+                continue
             input_file = os.path.join(input_dir, fname)
             print input_file
             with open(input_file, 'r') as f:
