@@ -382,6 +382,20 @@ class TemporaryKB(object):
         except:
             return 'none'
 
+class WikiMapper(object):
+    def __init__(self):
+        self.mapping = {}
+        with open('mapping_refkb2wiki.tab', 'r') as f:
+            for line in f:
+                eid, name, url = line.strip('\n').split('\t')
+                if url != 'None':
+                    self.mapping[eid] = url
+
+    def map(self, eid):
+        if eid in self.mapping:
+            return self.mapping[eid]
+        return None
+
 
 def format_kb_id(kb_id):
     kb_prefix = "tmpkb" if '@' in kb_id else "refkb"
@@ -459,6 +473,8 @@ if __name__ == '__main__':
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
         linker = EntityLinker()
         tmpkb = TemporaryKB()
+        wikimapper = WikiMapper()
+
         input_dir = args.in_dir
         for fname in os.listdir(input_dir):
             input_file = os.path.join(input_dir, fname)
@@ -540,6 +556,13 @@ if __name__ == '__main__':
                         "id": format_kb_id(result[0]['id']),
                         "canonical_name": result[0]['CannonicalName'], 
                         'score': result[0]['confidence'], 'subcomponent': 0})
+                    wiki_link = wikimapper.map(result[0]['id'])
+                    if wiki_link:
+                        frame['interp']['xref'].append({"@type": "db_reference", 
+                        "component": "opera.entities.edl.wikipedia.xianyang",
+                        "id": wiki_link, 
+                        'score': result[0]['confidence']})
+                    
                 else:
                     null_ents.add(frame['@id'])
 
@@ -566,6 +589,12 @@ if __name__ == '__main__':
                         "id": format_kb_id(result[0]['id']),
                         "canonical_name": result[0]['CannonicalName'], 
                         'score': result[0]['confidence'], 'subcomponent': 1})
+                    # wiki_link = wikimapper.map(result[0]['id'])
+                    # if wiki_link:
+                    #     frame['interp']['xref'].append({"@type": "db_reference", 
+                    #     "component": "opera.entities.edl.wikipedia.xianyang",
+                    #     "id": wiki_link, 
+                    #     'score': result[0]['confidence']})
 
             for coref_cluster in ent_clusters:
                 linked_ents = []
@@ -635,6 +664,7 @@ if __name__ == '__main__':
                         if vote_score > max_vote:
                             max_vote = vote_score
                             votedid = eid
+                    votedwiki = wikimapper.map(votedid)
                     for linked in linked_ents:
                         if linked['id'] == votedid:
                             final_linking = linked
@@ -648,6 +678,11 @@ if __name__ == '__main__':
                             frame['interp']['xref'].append(final_linking)
                         else:
                             frame['interp']['xref'] = [final_linking]
+                        if votedwiki:
+                            frame['interp']['xref'].append({"@type": "db_reference", 
+                                "component": "opera.entities.edl.wikipedia.xianyang",
+                                "id": votedwiki, 
+                                'score': result[0]['confidence']})
             
             # with open(os.path.join(args.out_dir, fname), 'w') as f:
             #     json.dump(json_doc, f, indent=1, sort_keys=True)
@@ -738,25 +773,25 @@ if __name__ == '__main__':
                 concept = row[2][1:]
                 result = linker.query({'mention': name, 'type': enttype}, '')
                 if result == 'none':
-                    print '{}\t{}\t{}'.format(name, concept, 'none')
+                    print u'{}\t{}\t{}'.format(name.decode('utf-8'), concept.decode('utf-8'), 'none').encode('utf-8')
                 else:
-                    out = '{}\t{}'.format(name, concept)
+                    out = u'{}\t{}'.format(name.decode('utf-8'), concept.decode('utf-8'))
                     for r_id, refkb_entry in enumerate(result):
                         if r_id == 3:
                             break
                         refkbid = refkb_entry['id']
                         refkbname = refkb_entry['CannonicalName']
                         if refkb_entry['info'] == '':
-                            print (refkbid, refkbname),
+                            out += '\t[{}, {}]'.format(refkbid, refkbname)
                         else:
                             if enttype == 'ldcOnt:GPE':
                                 info = refkb_entry['info'].split('\t')
                                 country = info[0]
-                                out += '\t[{}, {}, {}]'.format(refkbid, refkbname, country)
+                                out += u'\t[{}, {}, {}]'.format(refkbid, refkbname, country)
                             elif enttype == 'ldcOnt:PER':
                                 info = refkb_entry['info'].split('\t')
                                 country = info[0]
                                 title = info[1]
                                 org = info[2]
-                                out += '\t[{}, {}, {}, {}, {}]'.format(refkbid, refkbname, country, title, org)
-                    print out
+                                out += u'\t[{}, {}, {}, {}, {}]'.format(refkbid, refkbname, country, title, org)
+                    print out.encode('utf-8')
