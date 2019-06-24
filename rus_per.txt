@@ -1,0 +1,396 @@
+владимир андреевич василенко	*vladimir-vasilenko	none
+владимир василенко	*vladimir-vasilenko	none
+василенко	*vladimir-vasilenko	none
+ващук	*vatshuk	none
+роман ващук	*vatshuk	none
+вячеслав аброськин	*abroskin	none
+аброськин	*abroskin	none
+валерий коряк	*koryak	none
+валерий владимирович коряк	*koryak	none
+игорь валерьевич коломойский	*kolomoyskiy	none
+игорь коломойский	*kolomoyskiy	none
+коломойский	*kolomoyskiy	none
+михаил добкин	*dobkin	none
+добкин	*dobkin	none
+михаил маркович добкин	*dobkin	none
+александр владимирович захарченко	*alexander-zakharchenko	none
+олександр захарченко	*alexander-zakharchenko	none
+виктор федорович янукович	*yanukovich	none
+виктор фёдорович янукович	*yanukovich	none
+виктор янукович	*yanukovich	none
+янукович	*yanukovich	none
+барак обама	*obama	none
+обама	*obama	none
+петр алексеевич порошенко	*poroshenko	none
+петр порошенко	*poroshenko	none
+петро порошенко	*poroshenko	none
+пётр порошенко	*poroshenko	none
+порошенко	*poroshenko	none
+арсений петрович яценюк	*yatsenyuk	none
+арсений яценюк	*yatsenyuk	none
+яценюк	*yatsenyuk	none
+башар асад	*assad	none
+асад	*assad	none
+башар	*assad	none
+владимир владимирович путин	*putin	none
+владимир путин	*putin	none
+путин	*putin	none
+путін	*putin	none
+юлия владимировна тимошенко	*timoshenko	none
+юлия тимошенко	*timoshenko	none
+тимошенко	*timoshenko	none
+валерий дмитриевич болотов	*bolotov	none
+валерий болотов	*bolotov	none
+болотов	*bolotov	none
+франсуа олланд	*francois-hollande	none
+олланд	*francois-hollande	none
+александр юрьевич бородай	*boroday	none
+бородай	*boroday	none
+александр бородай	*boroday	none
+батька	*lukashenko	none
+николай янович азаров	*azarov	none
+микола янович азаров	*azarov	none
+николай азаров	*azarov	none
+микола азаров	*azarov	none
+азаров	*azarov	none
+вальцман	*valtsman	none
+джон рассел бэрд	*baird	none
+джон бэрд	*baird	none
+бэрд	*baird	none
+урмас паэт	*paet	none
+паэт	*paet	none
+арсен борисович аваков	*avakov	none
+арсен аваков	*avakov	none
+аваков	*avakov	none
+арсен авак	*avakov	none
+авак	*avakov	none
+витольд ващиковский	*waszczykowski	none
+ващиковский	*waszczykowski	none
+юрий анатольевич бойко	*boyko	none
+юрий бойко	*boyko	none
+бойко	*boyko	none
+джулия бишоп	*julia-bishop	none
+бишоп	*julia-bishop	none
+сергей викторович лавров	*lavrov	none
+сергей лавров	*lavrov	none
+лавров	*lavrov	none
+виталий юрьевич захарченко	*vitaly-zakharchenko	none
+виталий захарченко	*vitaly-zakharchenko	none
+валерия владимировна лутковская	*lutovskaya	none
+валерия лутковская	*lutovskaya	none
+лутковская	*lutovskaya	none
+леонид ильич брежнев	*brezhnev	none
+леонид брежнев	*brezhnev	none
+брежнев	*brezhnev	none
+александр романович аронец	*aronets	none
+александр аронец	*aronets	none
+олександр аронець	*aronets	none
+аронец	*aronets	none
+александр валентинович турчинов	*turchinov	none
+александр турчинов	*turchinov	none
+олександр турчинов	*turchinov	none
+турчинов	*turchinov	none
+владислав сурков	*surkov	none
+владислав юрьевич сурков	*surkov	none
+сурков	*surkov	none
+борислав ефимович берёза	*bereza	none
+борислав ефимович береза	*bereza	none
+борислав береза	*bereza	none
+борислав берёза	*bereza	none
+андрей владимирович парубий	*parubiy	none
+андрей парубий	*parubiy	none
+парубий	*parubiy	none
+вадим васильевич колесниченко	*kolesnichenko	none
+вадим колесниченко	*kolesnichenko	none
+ванханен	*vanhanen	none
+матти ванханен	*vanhanen	none
+ольга вадимовна богомолец	*bogomolets	none
+ольга богомолец	*bogomolets	none
+богомолец	*bogomolets	none
+олег ярославович тягнибок	*tyagnybok	none
+олег ярославович тягныбок	*tyagnybok	none
+олег тягнибок	*tyagnybok	none
+олег тягныбок	*tyagnybok	none
+тягнибок	*tyagnybok	none
+тягныбок	*tyagnybok	none
+анн брассер	*anne-brasseur	none
+анн брассёр	*anne-brasseur	none
+брассер	*anne-brasseur	none
+брассёр	*anne-brasseur	none
+ринат леонидович ахметов	*ahmetov	none
+ринат ахметов	*ahmetov	none
+ахметов	*ahmetov	none
+кэтрин маргарет эштон	*ashton	none
+кэтрин эштон	*ashton	none
+эштон	*ashton	none
+борис ефимович немцов	*nemtsov	none
+борис немцов	*nemtsov	none
+немцов	*nemtsov	none
+алёна валерьевна бабак	*babak	none
+алена валерьевна бабак	*babak	none
+алёна бабак	*babak	none
+алена бабак	*babak	none
+сергей владимирович василенко	*sergey-vasilenko	none
+сергей василенко	*sergey-vasilenko	none
+виктор васильевич бондарь	*bondar	none
+виктор бондарь	*bondar	none
+бондарь	*bondar	none
+сергей васильевич буряк	*buryak	none
+буряк	*buryak	none
+сергей буряк	*buryak	none
+андрей петрович клюев	*klyuev	none
+клюев	*klyuev	none
+андрей клюев	*klyuev	none
+святослав иванович вакарчук	*vakarchuk	none
+святослав вакарчук	*vakarchuk	none
+слава вакарчук	*vakarchuk	none
+вакарчук	*vakarchuk	none
+виктор пшонка	*victor-pshonka	none
+пшонка	*politician	none
+артем пшонка	*artem-pshonka	none
+артём пшонка	*artem-pshonka	none
+артем викторович пшонка	*artem-pshonka	none
+артём викторович пшонка	*artem-pshonka	none
+яков яковлевич безбах	*bezbakh	none
+яков безбах	*bezbakh	none
+безбах	*bezbakh	none
+руслан геннадьевич бадаев	*badaev	none
+бадаев	*badaev	none
+руслан бадаев	*badaev	none
+елена бондаренко	*bondarenko	none
+елена анатольевна бондаренко	*bondarenko	none
+олена бондаренко	*bondarenko	none
+сергей васильевич бондарчук	*bondarchuk	none
+сергей бондарчук	*bondarchuk	none
+максим алексеевич акимов	*akimov	none
+максим акимов	*akimov	none
+инна германовна богословская	*bogoslovskaya	none
+инна богословская	*bogoslovskaya	none
+анатолий степанович гриценко	*gritsenko	none
+анатолий гриценко	*gritsenko	none
+тариэл шакрович васадзе	*vasadze	none
+тариэл васадзе	*vasadze	none
+игорь михайлович бакай	*bakay	none
+игорь бакай	*bakay	none
+бакай	*bakay	none
+геннадий андреевич васильев	*vasiliev	none
+геннадий васильев	*vasiliev	none
+валерий лутковский	*lutkovskiy	none
+олександр павлович попов	*popov	none
+александр павлович попов	*popov	none
+олександр попов	*popov	none
+александр попов	*popov	none
+геннадий адольфович кернес	*kernes	none
+геннадий кернес	*kernes	none
+кернес	*mayor	none
+виталий кличко	*klichko	none
+кличко	*klichko	none
+георгий барамидзе	*spokesperson	none
+ванникова	*spokesperson	none
+мария захарова	*spokesperson	none
+захарова	*spokesperson	none
+ирина ванникова	*spokesperson	none
+майкл бочуркив	*spokesperson	none
+ванников	*spokesperson	none
+ирина валерьевна ванникова	*spokesperson	none
+иван петрович бубенчик	*bubenchik	none
+иван бубенчик	*bubenchik	none
+бубенчик	*bubenchik	none
+анатолий стрельченко	*strelchenko	none
+стрельченко	*strelchenko	none
+александр григорьевич якименко	*yakimenko	none
+александр якименко	*yakimenko	none
+олександр якименко	*yakimenko	none
+якименко	*yakimenko	none
+игорь всеволодович гиркин	*girkin	none
+игорь гиркин	*girkin	none
+гиркин	*girkin	none
+губарев	*gubarev	none
+павел губарев	*gubarev	none
+семен михайлович буденный	*budenniy	none
+семён михайлович будённый	*budenniy	none
+семён будённый	*budenniy	none
+семен буденный	*budenniy	none
+будённый	*budenniy	none
+буденный	*budenniy	none
+алексей баганец	*baganets	none
+баганец	*baganets	none
+александр сергеевич ходаковский	*khodakovskiy	none
+ходаковский	*khodakovskiy	none
+олександр ходаковский	*khodakovskiy	none
+александр ходаковский	*khodakovskiy	none
+игорь иванович стрелков	*strelkov	none
+игорь стрелков	*strelkov	none
+стрелков	*strelkov	none
+дмитрий садовник	*sadovnik	none
+дмитро садовник	*sadovnik	none
+садовник	*sadovnik	none
+владислав валерьевич волошин	*voloshin	none
+владислав волошин	*voloshin	none
+волошин	*voloshin	none
+филип марк бридлав	*breedlove	none
+бридлав	*breedlove	none
+филип бридлав	*breedlove	none
+игорь николаевич безлер	*bezler	none
+игорь безлер	*bezler	none
+безлер	*bezler	none
+александр астахов	*astakhov	none
+астахов	*astakhov	none
+сергей асавелюк	*asavelyuk	none
+сергей асавалюк	*asavelyuk	none
+асавелюк	*asavelyuk	none
+асавалюк	*asavelyuk	none
+сергей николаевич кусюк	*kusyuk	none
+сергей кусюк	*kusyuk	none
+кусюк	*kusyuk	none
+бес	*bes	none
+иван баданин	*badanin	none
+иван александрович баданин	*badanin	none
+баданин	*badanin	none
+бузина	*journalist	none
+юрий бутусов	*journalist	none
+артем шевченко	*journalist	none
+андрей викторович куликов	*journalist	none
+аркадий бабченко	*journalist	none
+ланкастер	*journalist	none
+патрик ланкастер	*journalist	none
+азамаз кочиев	*journalist	none
+артём валерьевич шевченко	*journalist	none
+ацик кочий	*journalist	none
+кочиев	*journalist	none
+илья варламов	*journalist	none
+ленкастер	*journalist	none
+ацик	*journalist	none
+ярошевский	*journalist	none
+бутусов	*journalist	none
+бочкал	*journalist	none
+андрей шевченко	*journalist	none
+варламов	*journalist	none
+юрий евгеньевич бутусов	*journalist	none
+андрія куликов	*journalist	none
+бабченко	*journalist	none
+азамаз	*journalist	none
+ацик кучев	*journalist	none
+бочкала	*journalist	none
+василий александрович муравицкий	*journalist	none
+varlamov	*journalist	none
+олесь бузина	*journalist	none
+муравицкий	*journalist	none
+аркадий аркадьевич бабченко	*journalist	none
+андрей куликов	*journalist	none
+артем валерьевич шевченко	*journalist	none
+ацамаз кочиев	*journalist	none
+роман бочкала	*journalist	none
+алексей ярошевский	*journalist	none
+ацик кочиева	*journalist	none
+артём шевченко	*journalist	none
+андрій куликов	*journalist	none
+патрик ленкастер	*journalist	none
+ацамаз	*journalist	none
+василий муравицкий	*journalist	none
+арсен	*person	none
+антонюк	*person	none
+артём	*person	none
+анжелика	*person	none
+полежай	*person	none
+валерий	*person	none
+агапов	*person	none
+григорий чхартишвили	*person	none
+ханс де борст	*person	none
+бернацкий	*person	none
+богдан	*person	none
+вадим	*person	none
+агап	*person	none
+александр меламуд	*person	none
+александр калягин	*person	none
+андерс	*person	none
+бернс	*person	none
+варфоломеев	*person	none
+александр ермаков	*person	none
+игорь	*person	none
+барамидзе	*person	none
+карлос	*person	none
+андрія	*person	none
+александр царёв	*person	none
+сергей кавтарадзе	*person	none
+борислав	*person	none
+адам	*person	none
+бабак	*person	none
+балабанов	*person	none
+адольф	*person	none
+андрей	*person	none
+антониу	*person	none
+анна	*person	none
+андрюша	*person	none
+александр викторович янукович	*alexander-yanukovich	none
+александр янукович	*alexander-yanukovich	none
+олександр янукович	*alexander-yanukovich	none
+янукович-младший	*alexander-yanukovich	none
+аркадий	*person	none
+бартоломей	*person	none
+де борст	*person	none
+карлос spainbuca	*person	none
+апостол павел	*person	none
+антон	*person	none
+юрий бирюков	*person	none
+берт	*person	none
+балуан	*person	none
+андрон	*person	none
+андрош	*person	none
+анатолий николаевич башловка	*bashlovka	none
+анатолий башловка	*bashlovka	none
+башловка	*bashlovka	none
+бычковский	*person	none
+акимов	*person	none
+ахмад	*person	none
+евгений агапов	*person	none
+андрей шерепенко	*person	none
+анатолий	*person	none
+васильев	*person	none
+арсений	*person	none
+бёрнсом	*person	none
+борис акунин	*akunin	none
+чхартишвили	*akunin	none
+акунин	*akunin	none
+бондарчук	*person	none
+артемий	*person	none
+руслан бортник	*person	none
+бондаренко	*person	none
+джордж билт	*person	none
+алексей	*person	none
+борст	*person	none
+диспетчер карлос	*person	none
+spainbuca	*person	none
+валентин	*person	none
+ахмет	*person	none
+анна герман	*person	none
+александр	*person	none
+бортник	*person	none
+сергей	*person	none
+бен	*person	none
+юрий сергеевич бирюков	*person	none
+байрам	*person	none
+абрам	*person	none
+любовь полежай	*person	none
+антип	*person	none
+василий	*person	none
+башловкий	*person	none
+алимов	*person	none
+бирюков	*person	none
+бойченко	*person	none
+балуан шолак	*person	none
+алекс	*person	none
+сергей гагикович нигоян	*nigoyan	none
+сегрей нигоян	*nigoyan	none
+нигоян	*nigoyan	none
+петр барландин	*barlandin	none
+пётр барландин	*barlandin	none
+барландин	*barlandin	none
+владимир венчак	*venchak	none
+венчак	*venchak	none
+богдан иванович вайда	*vayda	none
+богдан вайда	*vayda	none
+вайда	*vayda	none
+юрий вербицкий	*verbitskiy	none
+вербицкий	*verbitskiy	none
+алексей гриценко	*gritsenko	none

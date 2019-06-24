@@ -1,0 +1,90 @@
+Vladimir Putin	*politician	[30003842, Vladimir Vladimirovich PUTIN, Russia, President, ]
+Putin	*politician	[30003842, Vladimir Vladimirovich PUTIN, Russia, President, ]
+Hilary Clinton	*politician	none
+Clinton	*politician	none
+Joe Biden	*politician	none
+Biden	*politician	none
+Gennady Kernes	*politician	none
+Kernes	*politician	none
+Yuri Lutsenko	*politician	none
+Lutsenko	*politician	none
+Arsen Avakhov	*politician	[30005007, Arsen AVAKOV, Ukraine, Min. of Internal Affairs, ]
+Avakhov	*politician	[30005007, Arsen AVAKOV, Ukraine, Min. of Internal Affairs, ]
+Vladimir Vasilenko	*vladimir-vasilenko	none
+Vasilenko	*vladimir-vasilenko	none
+Vatshuk	*vatshuk	none
+Roman Vatshuk	*vatshuk	none
+Vyacheslav Abroskin	*abroskin	none
+Abroskin	*abroskin	none
+Valeriy Koryak	*koryak	none
+Koryak	*koryak	none
+Igor Kolomoyskiy	*kolomoyskiy	none
+Ihor Kolomoyskiy	*kolomoyskiy	none
+Kolomoyskiy	*kolomoyskiy	none
+Michail Dobkin	*dobkin	none
+Mikhail Dobkin	*dobkin	none
+Dobkin	*dobkin	none
+Aleksandr Zakharchenko	 *alexander-zakharchenko	none
+Oleksandr Zakharchenko	 *alexander-zakharchenko	none
+Victor Yanukovich	 *yanukovich	[80000144, Viktor Yanukovych]
+Yanukovich	 *yanukovich	[80000144, Viktor Yanukovych]
+Barak Obama	 *obama	none
+Obama	 *obama	[30002956, Grace Obama CHIUMIA, Malawi, Min. of Youth, Sports, & Culture, ]	[30001628, Nicolas OBAMA Nchama, Equatorial Guinea, Min. of National Security, ]
+Petr Poroshenko	 *poroshenko	[30004989, Petro POROSHENKO, Ukraine, President, ]
+Petro Poroshenko	 *poroshenko	[30004989, Petro POROSHENKO, Ukraine, President, ]
+Poroshenko	 *poroshenko	[30004989, Petro POROSHENKO, Ukraine, President, ]
+Arseniy Yatsenyuk	 *yatsenyuk	[30004991, Arseniy YATSENYUK, Ukraine, Prime Min., ]
+Yatsenyuk	 **yatsenyuk	[30004991, Arseniy YATSENYUK, Ukraine, Prime Min., ]
+Bashar assad	 *assad	[30004507, Bashar al-ASAD, Syria, President, ]
+Assad	 *assad	[30003268, Mohamed HASSAD, Morocco, Min. of Interior, ]
+Bashar	 *assad	[30004507, Bashar al-ASAD, Syria, President, ]	[30004545, Bashar al-JAFARI, Syria, Permanent Representative to the UN, New York, UN]	[30004535, Bashar Riyad YAZIGI, Syria, Min. of Tourism, ]
+Yulia Timoshenko	 *timoshenko	none
+Timoshenko	 *timoshenko	none
+Valeriy Bolotov	 *bolotov	none
+Bolotov	 *bolotov	none
+Francois Hollande	 *francois-hollande	[30000100, Francois HOLLANDE, Andorra, Head of State (Co-Prince), ]	[30001748, Francois HOLLANDE, France, President, ]
+Hollande	 *francois-hollande	[30000100, Francois HOLLANDE, Andorra, Head of State (Co-Prince), ]	[30001748, Francois HOLLANDE, France, President, ]
+Aleksandr Boroday	 *boroday	none
+Boroday	 *boroday	none
+Lukashenko	 *lukashenko	[30000408, Aleksandr LUKASHENKO, Belarus, President, ]
+Lukashenka	 *lukashenko	[30000408, Aleksandr LUKASHENKO, Belarus, President, ]
+Nikolay Azarov	 *azarov	none
+Mikola Azarov	 *azarov	none
+Azarov	 *azarov	none
+Valtsman	 *valtsman	none
+John Russel Baird	 *baird	none
+John Baird	 *baird	none
+Baird	 *baird	none
+Urmas Paet	 *paet	[80000157, Urmas Paet]
+Paet	 *paet	[80000157, Urmas Paet]
+Arsen avakov	 *avakov	[30005007, Arsen AVAKOV, Ukraine, Min. of Internal Affairs, ]
+Avakov	 *avakov	[30005007, Arsen AVAKOV, Ukraine, Min. of Internal Affairs, ]
+Vitold Waszczykowski	 *waszczykowski	none
+Waszczykowski	 *waszczykowski	none
+Yuriy Boyko	 *boyko	none
+Boyko	 *boyko	[30000709, Boyko BORISOV, Bulgaria, Prime Min., ]
+Julia Bishop	 *julia-bishop	[30000236, Julie Isabel BISHOP, Australia, Min. for Foreign Affairs, ]
+Bishop	 *julia-bishop	[30001264, Teina BISHOP, Cook Islands, Min. of Education|Min. of Human Resources Development|Min. of Marine Resources|Min. of Tourism, ]	[30000236, Julie Isabel BISHOP, Australia, Min. for Foreign Affairs, ]
+Sergey Lavrov	 *lavrov	[30003864, Sergey Viktorovich LAVROV, Russia, Min. of Foreign Affairs, ]
+Lavrov	 *lavrov	[30003864, Sergey Viktorovich LAVROV, Russia, Min. of Foreign Affairs, ]
+Vitaly Zakharchenko	 *vitaly-zakharchenko	[80000159, Vitaliy Zakharchenko]
+Valeriya Lutovskaya	 *lutovskaya	none
+Lutovskaya	 *lutovskaya	none
+Leonid Brezhnev	 *brezhnev	none
+Brezhnev	 *brezhnev	none
+Aleksandr Aronets	 *aronets	none
+Oleksandr Aronets	 *aronets	none
+Aronets	 *aronets	none
+Aleksandr Turchinov	 *turchinov	[30005014, Oleksandr TURCHYNOV, Ukraine, Secretary, National Security & Defense Council, National Security & Defense Council]
+Oleksandr Turchinov	 *turchinov	[30005014, Oleksandr TURCHYNOV, Ukraine, Secretary, National Security & Defense Council, National Security & Defense Council]
+Turchinov	 *turchinov	[30005014, Oleksandr TURCHYNOV, Ukraine, Secretary, National Security & Defense Council, National Security & Defense Council]
+Vladislav Surkov	 *surkov	none
+Surkov	 *surkov	none
+Borislav Bereza	 *bereza	none
+Andrey Parubiy	 *parubiy	[80000127, Andriy Parubiy]
+Parubiy	 *parubiy	[80000127, Andriy Parubiy]
+Vadim Kolesnichenko	 *kolesnichenko	none
+Vanhanen	 *vanhanen	none
+Matti Vanhanen	 *vanhanen	none
+Olga Bogomolets	 *bogomolets	[80000151, Olga Bogomolets]
+Bogomolets	 *bogomolets	[80000151, Olga Bogomolets]
