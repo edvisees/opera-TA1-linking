@@ -5,7 +5,6 @@
 csr_dir=$(readlink -f $1)
 out_dir=$(readlink -f $2)
 lang=$3
-lang=${lang:0:2}
 
 cd $(dirname $0)
 
