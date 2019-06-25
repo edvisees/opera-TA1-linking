@@ -11,3 +11,4 @@ cd $(dirname $0)
 source activate xy_linking
 set -x
 python linking.py --run_csr --$lang --in_dir $csr_dir --out_dir $out_dir
+exit $?
