@@ -787,21 +787,21 @@ if __name__ == '__main__':
                 else:
                     out = u'{}\t{}'.format(name.decode('utf-8'), concept.decode('utf-8'))
                     for r_id, refkb_entry in enumerate(result):
-                        if r_id == 3:
-                            break
+                        # if r_id == 3:
+                        #     break
                         refkbid = refkb_entry['id']
                         refkbname = refkb_entry['CannonicalName']
                         if refkb_entry['info'] == '':
-                            out += '\t[{}, {}]'.format(refkbid, refkbname)
+                            print(out + '\t{}\t{}'.format(refkbid, refkbname)).encode('utf-8')
                         else:
                             if enttype == 'ldcOnt:GPE':
                                 info = refkb_entry['info'].split('\t')
-                                country = info[0]
-                                out += u'\t[{}, {}, {}]'.format(refkbid, refkbname, country)
+                                country, feature, link = info
+                                print(out + u'\t{}\t{}\t{}\t{}\t{}'.format(refkbid, refkbname, country, feature, link)).encode('utf-8')
                             elif enttype == 'ldcOnt:PER':
                                 info = refkb_entry['info'].split('\t')
                                 country = info[0]
                                 title = info[1]
                                 org = info[2]
-                                out += u'\t[{}, {}, {}, {}, {}]'.format(refkbid, refkbname, country, title, org)
-                    print out.encode('utf-8')
+                                print(out + u'\t{}\t{}\t{}\t{}\t{}'.format(refkbid, refkbname, country, title, org)).encode('utf-8')
+                    # print out.encode('utf-8')
