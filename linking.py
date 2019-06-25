@@ -19,6 +19,8 @@ import os
 from collections import defaultdict
 import csv
 
+# nasty hack to fix "UnicodeDecodeError: ascii codec can't decode..."
+# stackoverflow.com/questions/3828723/why-should-we-not-use-sys-setdefaultencodingutf-8-in-a-py-script
 reload(sys)
 sys.setdefaultencoding('utf8')
 
