@@ -19,6 +19,9 @@ import os
 from collections import defaultdict
 import csv
 
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 def data_cleaning(table_in, table_out):
     eids = set()
