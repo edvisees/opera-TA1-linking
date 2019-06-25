@@ -425,7 +425,7 @@ if __name__ == '__main__':
     parser.add_argument('--map_file', type=str)
     args = parser.parse_args()
 
-    if not os.path.exists(args.out_dir):
+    if args.out_dir and not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
 
     if args.index:
