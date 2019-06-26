@@ -2,6 +2,7 @@
 
 cd $(dirname $0)
 
+export JAVA_HOME=${JAVA_HOME:-"/usr/lib/jvm/java-8-openjdk-amd64"}
 [ -e "$JAVA_HOME" ] || { echo "ERROR: Please set JAVA_HOME correctly!"; exit 1; }
 
 conda create -n xy_linking python=2.7.15
