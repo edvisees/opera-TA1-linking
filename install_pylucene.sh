@@ -7,10 +7,13 @@ cd $(dirname $0)
 conda create -n xy_linking python=2.7.15
 source activate xy_linking
 
-wget -q https://www-us.apache.org/dist/lucene/pylucene/pylucene-7.6.0-src.tar.gz
-tar xzf pylucene-7.6.0-src.tar.gz
-
-cd pylucene-7.6.0/jcc/
+if [ -d "../../resources/xianyang/xianyang_linking/pylucene-7.6.0" ]; then
+    cd ../../resources/xianyang/xianyang_linking/pylucene-7.6.0/jcc/
+else
+    wget -q https://www-us.apache.org/dist/lucene/pylucene/pylucene-7.6.0-src.tar.gz
+    tar xzf pylucene-7.6.0-src.tar.gz
+    cd pylucene-7.6.0/jcc/
+fi
 python setup.py build && python setup.py install
 cd ..
 make all install \
