@@ -15,9 +15,10 @@ else
     tar xzf pylucene-7.6.0-src.tar.gz
     cd pylucene-7.6.0/jcc/
 fi
+export JCC_JDK=$JAVA_HOME
 python setup.py build && python setup.py install
 cd ..
-make all install \
+make clean all install \
     PYTHON=$(which python) \
     JCC="$(which python) -m jcc --shared" \
     ANT="JAVA_HOME=$JAVA_HOME /usr/bin/ant" \
