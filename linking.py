@@ -564,7 +564,7 @@ if __name__ == '__main__':
                     if 'xref' not in frame['interp']:
                         frame['interp']['xref'] = []
                     frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
-                    if any(x['id'].startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
+                    if any(x.get('id', '').startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
                         continue
                     frame['interp']['xref'].append({"@type": "db_reference", 
                         "component": "opera.entities.edl.refkb.xianyang",
@@ -597,7 +597,7 @@ if __name__ == '__main__':
                     if 'xref' not in frame['interp']:
                         frame['interp']['xref'] = []
                     frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
-                    if any(x['id'].startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
+                    if any(x.get('id', '').startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
                         continue
                     frame['interp']['xref'].append({"@type": "db_reference", 
                         "component": "opera.entities.edl.refkb.xianyang",
@@ -662,7 +662,7 @@ if __name__ == '__main__':
                                 if 'xref' not in frame['interp']:
                                     frame['interp']['xref'] = []
                                 frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
-                                if any(x['id'].startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
+                                if any(x.get('id', '').startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
                                     continue
                                 frame['interp']['xref'].append({"@type": "db_reference", 
                                 "component": "opera.entities.edl.refkb.xianyang",
@@ -688,7 +688,7 @@ if __name__ == '__main__':
                         frame = id2entity[eid]
                         if 'xref' in frame['interp']:
                             frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
-                            if any(x['id'].startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
+                            if any(x.get('id', '').startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
                                 continue
                             frame['interp']['xref'].append(final_linking)
                         else:
