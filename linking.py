@@ -532,12 +532,12 @@ if __name__ == '__main__':
                     enttype = enttype[0]['value']
                 if args.en:
                     sent = sentences[frame['provenance']['reference']]
-                    print text, enttype
+                    # print text, enttype
                     ne = {'mention': text, 'type': enttype}
                     result = linker.query(ne, sent)
                 elif args.ru or args.uk:
                     fringe = frame['interp']['fringe'] if 'fringe' in frame['interp'] else None
-                    print text, enttype, fringe
+                    # print text, enttype, fringe
                     ne = {'mention': text, 'type': enttype}
                     result = linker.query(ne, '')
                     if result != 'none' and not fringe is None:
@@ -555,12 +555,12 @@ if __name__ == '__main__':
                             result = list(result_dict.values())
                             result.sort(key=lambda x: -x['confidence'])
                 elif args.img:
-                    print text, enttype
+                    # print text, enttype
                     ne = {'mention': text, 'type': enttype}
                     result = linker.query(ne, '')
 
                 if result != 'none':
-                    print result
+                    # print result
                     if 'xref' not in frame['interp']:
                         frame['interp']['xref'] = []
                     frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
@@ -593,7 +593,7 @@ if __name__ == '__main__':
                 ne = {'mention': text, 'type': enttype}
                 result = tmpkb.query(ne)
                 if result != 'none':
-                    print '****', result
+                    # print '****', result
                     if 'xref' not in frame['interp']:
                         frame['interp']['xref'] = []
                     frame['interp']['xref'] = filter(lambda x: x['component'] != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
@@ -654,7 +654,7 @@ if __name__ == '__main__':
                         enttype = enttype[7:10]
                         if enttype in ['GPE', 'LOC', 'FAC', 'PER', 'ORG', 'VEH', 'WEA']:
                             for eid in coref_cluster:
-                                print '!', id2entity[eid]
+                                # print '!', id2entity[eid]
                             tid = tmpkb.register(best_mention.lower(), enttype)
                             print tmpkb.query({'mention': best_mention, 'type': 'ldcOnt:'+enttype})
                             for eid in coref_cluster:
