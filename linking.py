@@ -398,8 +398,13 @@ class WikiMapper(object):
 
     def map(self, eid):
         if eid in self.mapping:
-            return self.mapping[eid]
+            return self.normalize_url(self.mapping[eid])
         return None
+
+    def normalize_url(self, url):
+        title = url[url.rfind('/')+1 :]
+        lang = url[url.find('://')+3 : url.find('://')+5]
+        return '{}_wiki:{}'.format(lang, title)
 
 
 def format_kb_id(kb_id):
