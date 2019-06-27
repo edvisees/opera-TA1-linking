@@ -16,7 +16,8 @@ else
     cd pylucene-7.6.0/jcc/
 fi
 export JCC_JDK=$JAVA_HOME
-python setup.py build && python setup.py install
+export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server:$JAVA_HOME/jre/lib:$LD_LIBRARY_PATH
+python setup.py clean && python setup.py build && python setup.py install
 cd ..
 make clean all install \
     PYTHON=$(which python) \
