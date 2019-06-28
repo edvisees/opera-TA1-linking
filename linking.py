@@ -404,7 +404,10 @@ class WikiMapper(object):
     def normalize_url(self, url):
         title = url[url.rfind('/')+1 :]
         lang = url[url.find('://')+3 : url.find('://')+5]
-        return '{}_wiki:{}'.format(lang, title)
+        if lang in ["en", "ru", "uk"]:
+            return '{}_wiki:{}'.format(lang, title)
+        else:
+            return url
 
 
 def format_kb_id(kb_id):
