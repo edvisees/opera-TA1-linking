@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ $# -ne 3 ] && { echo "Usage: $0 csr_dir out_dir en|ru|uk|img"; exit 1; }
+[ $# -ne 3 ] && { echo "Usage: $0 csr_dir out_dir en|ru|uk|es|img"; exit 1; }
 
 csr_dir=$(readlink -f $1)
 out_dir=$(readlink -f $2)

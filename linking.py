@@ -404,7 +404,7 @@ class WikiMapper(object):
     def normalize_url(self, url):
         title = url[url.rfind('/')+1 :]
         lang = url[url.find('://')+3 : url.find('://')+5]
-        if lang in ["en", "ru", "uk"]:
+        if lang in ["en", "ru", "uk", "es"]:
             return '{}_wiki:{}'.format(lang, title)
         else:
             return url
@@ -425,6 +425,8 @@ if __name__ == '__main__':
     parser.add_argument('--run', action='store_true')
     parser.add_argument('--run_csr', action='store_true')
     parser.add_argument('--en', action='store_true')
+    parser.add_argument('--es', action='store_true')
+    parser.add_argument('--sp', action='store_true')
     parser.add_argument('--ru', action='store_true')
     parser.add_argument('--uk', action='store_true')
     parser.add_argument('--img', action='store_true')
@@ -432,6 +434,8 @@ if __name__ == '__main__':
     parser.add_argument('--out_dir', type=str)
     parser.add_argument('--map_file', type=str)
     args = parser.parse_args()
+    if args.sp:
+        args.es = args.sp
 
     if args.out_dir and not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
@@ -509,7 +513,7 @@ if __name__ == '__main__':
                     ent_clusters.append(cluster)
             # print ent_clusters
 
-            if args.en:
+            if args.en or args.es:
                 sentences = {}
                 for frame in json_doc['frames']:
                     if frame['@type'] == 'sentence':
@@ -533,7 +537,7 @@ if __name__ == '__main__':
                 enttype = frame['interp']['type']
                 if type(enttype) == list:
                     enttype = enttype[0]['value']
-                if args.en:
+                if args.en or args.es:
                     sent = sentences[frame['provenance']['reference']]
                     # print text, enttype
                     ne = {'mention': text, 'type': enttype}
