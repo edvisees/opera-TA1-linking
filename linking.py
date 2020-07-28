@@ -25,7 +25,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-def data_cleaning(table_in, table_out):
+def data_cleaning(table_in, table_out, country_codes):
     eids = set()
     with open(table_in, 'r') as fin:
         with open(table_out, 'w') as fout:
@@ -37,7 +37,7 @@ def data_cleaning(table_in, table_out):
                 if origin == 'GEO':
                     country_code = tokens[12]
                     wiki_link = tokens[46]
-                    if country_code != 'RU' and country_code != 'UA' and wiki_link == '':
+                    if country_code not in country_codes and wiki_link == '':
                         continue
                 eids.add(eid)
                 fout.write(line)
@@ -135,8 +135,9 @@ def iou(str1, str2):
     return float(len(tokens1 & tokens2)) / len(tokens1 | tokens2)
 
 class EntityLinker(object):
-    def __init__(self):
-        self.searcher = Searcher('lucene_index/')
+    def __init__(self, lucene_index_dir):
+        self.lucene_index_dir = lucene_index_dir
+        self.searcher = Searcher(self.lucene_index_dir)
 
     def search_candidates(self, name, dist=0):
         if dist == 0:
@@ -336,28 +337,30 @@ class EntityLinker(object):
         return self.disamb(candidates, ent_name, ent_type, sentence)
 
 class TemporaryKB(object):
-    def __init__(self):
-        if os.path.isdir('tmp_index/'):
-            with open('tmp_index/count.txt', 'r') as f:
+    def __init__(self, tmp_index_dir):
+        self.tmp_index_dir = tmp_index_dir
+        self.counts_file = os.path.join(self.tmp_index_dir, 'count.txt')
+        if os.path.isdir(self.tmp_index_dir):
+            with open(self.counts_file, 'r') as f:
                 self.count = int(f.readline().strip())
-            # self.indexer = Indexer('tmp_index/')
-            # self.searcher = Searcher('tmp_index/')
+            # self.indexer = Indexer(self.tmp_index_dir)
+            # self.searcher = Searcher(self.tmp_index_dir)
         else:
-            os.mkdir('tmp_index/')
+            os.mkdir(self.tmp_index_dir)
             self.count = 0
-            with open('tmp_index/count.txt', 'w') as f:
+            with open(self.counts_file, 'w') as f:
                 f.write('{}'.format(self.count))
-            # self.indexer = Indexer('tmp_index/')
+            # self.indexer = Indexer(self.tmp_index_dir)
             self.register('MH17', 'VEH')
             self.register('T-34', 'VEH')
-            # self.searcher = Searcher('tmp_index/')
+            # self.searcher = Searcher(self.tmp_index_dir)
 
     def register(self, name, type):
         print 'registering:', name, type
-        indexer = Indexer('tmp_index/')
+        indexer = Indexer(self.tmp_index_dir)
         indexer.index('@{}'.format(self.count), name, name, type, '')
         self.count += 1
-        with open('tmp_index/count.txt', 'w') as f:
+        with open(self.counts_file, 'w') as f:
             f.write('{}'.format(self.count))
         indexer.close()
         # print '$$', self.searcher.find_by_name(name)
@@ -368,7 +371,7 @@ class TemporaryKB(object):
             ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
             # print 'querying', ent_name, ent_type
             # print(ent_name, ent_type)
-            searcher = Searcher('tmp_index/')
+            searcher = Searcher(self.tmp_index_dir)
             results = searcher.find_by_name(ent_name)
             # print(results)
             results = filter(lambda x: x['type'] == ent_type, results)
@@ -420,6 +423,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--index', nargs='?', const="LDC2018E80_LORELEI_Background_KB", default=None, type=str,
                         help="clean and index reference KB (default dir: LDC2018E80_LORELEI_Background_KB)")
+    parser.add_argument('--index-dir', type=str, required=True)
+    parser.add_argument('--country-codes', nargs='+', default=["RU", "UA"])
     parser.add_argument('--query', action='store_true')
     parser.add_argument('--query_tmp', action='store_true')
     parser.add_argument('--run', action='store_true')
@@ -434,27 +439,33 @@ if __name__ == '__main__':
     parser.add_argument('--out_dir', type=str)
     parser.add_argument('--map_file', type=str)
     args = parser.parse_args()
+
     if args.sp:
         args.es = args.sp
 
     if args.out_dir and not os.path.exists(args.out_dir):
         os.makedirs(args.out_dir)
 
+    lucene_index_dir = os.path.join(args.index_dir, 'lucene_index/')
+    tmp_index_dir = os.path.join(args.index_dir, 'tmp_index/')
+
     if args.index:
+        if os.path.exists(lucene_index_dir):
+            sys.exit('ERROR: ' + lucene_index_dir + ' already exists!')
         data_cleaning(os.path.join(args.index, 'data/entities.tab'),
-                        os.path.join(args.index, 'data/cleaned.tab'))
+                      os.path.join(args.index_dir, 'cleaned.tab'),
+                      args.country_codes)
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        os.system('rm -rf lucene_index/')
-        indexer = Indexer('lucene_index/')
+        indexer = Indexer(lucene_index_dir)
         for eid, name, cname, type, info in load_id2name(
-                os.path.join(args.index, 'data/cleaned.tab'),
+                os.path.join(args.index_dir, 'cleaned.tab'),
                 os.path.join(args.index, 'data/alternate_names.tab')):
             indexer.index(eid, name, cname, type, info)
         indexer.close()
     elif args.run:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker()
-        tmpkb = TemporaryKB()
+        linker = EntityLinker(lucene_index_dir)
+        tmpkb = TemporaryKB(tmp_index_dir)
         input_dir = args.dir
         for fname in os.listdir(input_dir):
             input_file = os.path.join(input_dir, fname)
@@ -491,8 +502,8 @@ if __name__ == '__main__':
                 json.dump(json_doc, f, indent=1, sort_keys=True)
     elif args.run_csr:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker()
-        tmpkb = TemporaryKB()
+        linker = EntityLinker(lucene_index_dir)
+        tmpkb = TemporaryKB(tmp_index_dir)
         wikimapper = WikiMapper()
 
         input_dir = args.in_dir
@@ -712,8 +723,8 @@ if __name__ == '__main__':
                 f.write(unicode(json.dumps(json_doc, indent=1, sort_keys=True, ensure_ascii=False)))
     # elif args.run_csr_ru:
     #     lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-    #     linker = EntityLinker()
-    #     tmpkb = TemporaryKB()
+    #     linker = EntityLinker(lucene_index_dir)
+    #     tmpkb = TemporaryKB(tmp_index_dir)
     #     input_dir = args.dir
     #     for fname in os.listdir(input_dir):
     #         input_file = os.path.join(input_dir, fname)
@@ -764,7 +775,7 @@ if __name__ == '__main__':
             #     json.dump(json_doc, f, indent=1, sort_keys=True)
     elif args.query:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker()
+        linker = EntityLinker(lucene_index_dir)
         while True:
             name = raw_input('name:')
             ntype = raw_input('type:')
@@ -772,7 +783,7 @@ if __name__ == '__main__':
             print linker.query(ne, '')
     elif args.query_tmp:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = TemporaryKB()
+        linker = TemporaryKB(tmp_index_dir)
         while True:
             name = raw_input('name:')
             ntype = raw_input('type:')
@@ -780,7 +791,7 @@ if __name__ == '__main__':
             print linker.query(ne)
     elif args.map_file:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker()
+        linker = EntityLinker(lucene_index_dir)
 
         if 'named_gpe' in args.map_file:
             enttype = 'ldcOnt:GPE'
