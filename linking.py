@@ -450,8 +450,8 @@ if __name__ == '__main__':
     tmp_index_dir = os.path.join(args.index_dir, 'tmp_index/')
 
     if args.index:
-        if os.path.exists(lucene_index_dir):
-            sys.exit('ERROR: ' + lucene_index_dir + ' already exists!')
+        # if os.path.exists(lucene_index_dir):
+            # sys.exit('ERROR: ' + lucene_index_dir + ' already exists!')
         data_cleaning(os.path.join(args.index, 'data/entities.tab'),
                       os.path.join(args.index_dir, 'cleaned.tab'),
                       args.country_codes)
