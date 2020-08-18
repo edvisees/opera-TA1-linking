@@ -9,7 +9,7 @@ cd $(dirname $0)
 source activate xy_linking
 set -x
 if [ -d $index_dir/lucene_index/ ]; then
-    mkdir -p $index_dir/extra_kb_entries/data/extra_kb_entries/
+    mkdir -p $index_dir/extra_kb_entries/data/
     cp -a $kb_dir/data/alternate_names.tab $index_dir/extra_kb_entries/data/
     LC_ALL=C grep -v -e '^GEO' -e '^WLL' -e '^APB' $kb_dir/data/entities.tab > $index_dir/extra_kb_entries/data/entities.tab
     kb_dir=$index_dir/extra_kb_entries/
