@@ -136,9 +136,10 @@ def iou(str1, str2):
     return float(len(tokens1 & tokens2)) / len(tokens1 | tokens2)
 
 class EntityLinker(object):
-    def __init__(self, lucene_index_dir):
+    def __init__(self, lucene_index_dir, country_codes):
         self.lucene_index_dir = lucene_index_dir
         self.searcher = Searcher(self.lucene_index_dir)
+        self.country_codes = country_codes
 
     def search_candidates(self, name, dist=0):
         if dist == 0:
@@ -198,7 +199,7 @@ class EntityLinker(object):
                 if candidate['info'] == '': continue
                 if candidate['info'].split('\t')[1] == 'country,state,region,...':
                     scores[i] += 1
-                if candidate['info'].split('\t')[0] == 'RU' or candidate['info'].split('\t')[0] == 'UA':
+                if candidate['info'].split('\t')[0] in self.country_codes:
                     scores[i] += 1
                 if candidate['info'].split('\t')[0] == 'US' or candidate['info'].split('\t')[0] == 'CA':
                     scores[i] -= 0.5
@@ -273,7 +274,7 @@ class EntityLinker(object):
         else:
             candidates = filtered
         filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' or 
-            x['info'].split('\t')[0] == 'RU' or x['info'].split('\t')[0] == 'UA', candidates)
+            x['info'].split('\t')[0] in args.country_codes, candidates)
         if len(filtered) == 1:
             return filtered
         elif len(filtered) == 0:
@@ -291,7 +292,9 @@ class EntityLinker(object):
             for c, candidate in enumerate(candidates):
                 info = candidate['info']
                 context_score[c] = iou(info, sentence) * 5
-                if 'Russia' in info or 'Ukraine' in info:
+                # TODO: fix this, this shouldn't be hardcoded
+                #  if 'Russia' in info or 'Ukraine' in info:
+                if 'Venezuela' in info:
                     context_score[c] += 1
         elif ent_type == 'ORG':
             for c, candidate in enumerate(candidates):
@@ -465,7 +468,7 @@ if __name__ == '__main__':
         indexer.close()
     elif args.run:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker(lucene_index_dir)
+        linker = EntityLinker(lucene_index_dir, args.country_codes)
         tmpkb = TemporaryKB(tmp_index_dir)
         input_dir = args.dir
         for fname in os.listdir(input_dir):
@@ -507,7 +510,7 @@ if __name__ == '__main__':
                 traceback.print_exc()
     elif args.run_csr:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker(lucene_index_dir)
+        linker = EntityLinker(lucene_index_dir, args.country_codes)
         tmpkb = TemporaryKB(tmp_index_dir)
         wikimapper = WikiMapper()
 
@@ -732,7 +735,7 @@ if __name__ == '__main__':
                 traceback.print_exc()
     # elif args.run_csr_ru:
     #     lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-    #     linker = EntityLinker(lucene_index_dir)
+    #     linker = EntityLinker(lucene_index_dir, args.country_codes)
     #     tmpkb = TemporaryKB(tmp_index_dir)
     #     input_dir = args.dir
     #     for fname in os.listdir(input_dir):
@@ -784,7 +787,7 @@ if __name__ == '__main__':
             #     json.dump(json_doc, f, indent=1, sort_keys=True)
     elif args.query:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker(lucene_index_dir)
+        linker = EntityLinker(lucene_index_dir, args.country_codes)
         while True:
             name = raw_input('name:')
             ntype = raw_input('type:')
@@ -800,7 +803,7 @@ if __name__ == '__main__':
             print linker.query(ne)
     elif args.map_file:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
-        linker = EntityLinker(lucene_index_dir)
+        linker = EntityLinker(lucene_index_dir, args.country_codes)
 
         if 'named_gpe' in args.map_file:
             enttype = 'ldcOnt:GPE'
