@@ -38,7 +38,7 @@ def data_cleaning(table_in, table_out, country_codes):
                 if origin == 'GEO':
                     country_code = tokens[12]
                     wiki_link = tokens[46]
-                    if country_code not in country_codes and wiki_link == '':
+                    if country_codes and country_code not in country_codes and wiki_link == '':
                         continue
                 eids.add(eid)
                 fout.write(line)
@@ -274,7 +274,7 @@ class EntityLinker(object):
         else:
             candidates = filtered
         filtered = filter(lambda x: x['type'] != 'GPE' and x['type'] != 'LOC' or 
-            x['info'].split('\t')[0] in args.country_codes, candidates)
+                          len(self.country_codes) == 0 or x['info'].split('\t')[0] in self.country_codes, candidates)
         if len(filtered) == 1:
             return filtered
         elif len(filtered) == 0:
@@ -428,7 +428,7 @@ if __name__ == '__main__':
     parser.add_argument('--index', nargs='?', const="LDC2018E80_LORELEI_Background_KB", default=None, type=str,
                         help="clean and index reference KB (default dir: LDC2018E80_LORELEI_Background_KB)")
     parser.add_argument('--index-dir', type=str, required=True)
-    parser.add_argument('--country-codes', nargs='+', default=["RU", "UA"])
+    parser.add_argument('--country-codes', nargs='*', default=[])
     parser.add_argument('--query', action='store_true')
     parser.add_argument('--query_tmp', action='store_true')
     parser.add_argument('--run', action='store_true')
@@ -444,6 +444,7 @@ if __name__ == '__main__':
     parser.add_argument('--map_file', type=str)
     args = parser.parse_args()
 
+    print "Using country codes: " + " ".join(args.country_codes)
     if args.sp:
         args.es = args.sp
 
