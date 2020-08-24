@@ -11,9 +11,12 @@ source activate xy_linking
 if [ -d "../../resources/xianyang/xianyang_linking/pylucene-7.6.0" ]; then
     cd ../../resources/xianyang/xianyang_linking/pylucene-7.6.0/jcc/
 else
-    wget -q https://www-us.apache.org/dist/lucene/pylucene/pylucene-7.6.0-src.tar.gz
-    tar xzf pylucene-7.6.0-src.tar.gz
-    cd pylucene-7.6.0/jcc/
+    # wget -q https://www-us.apache.org/dist/lucene/pylucene/pylucene-7.6.0-src.tar.gz
+    # tar xzf pylucene-7.6.0-src.tar.gz
+    # cd pylucene-7.6.0/jcc/
+    wget -q https://www-us.apache.org/dist/lucene/pylucene/pylucene-7.7.1-src.tar.gz
+    tar xzf pylucene-7.7.1-src.tar.gz
+    cd pylucene-7.7.1/jcc/
 fi
 export JCC_JDK=$JAVA_HOME
 export LD_LIBRARY_PATH=$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server:$JAVA_HOME/jre/lib:$LD_LIBRARY_PATH
