@@ -131,6 +131,8 @@ class Searcher:
 def iou(str1, str2):
     tokens1 = set(str1.split())
     tokens2 = set(str2.split())
+    if len(tokens1 | tokens2) == 0:
+        return 0
     return float(len(tokens1 & tokens2)) / len(tokens1 | tokens2)
 
 class EntityLinker(object):
