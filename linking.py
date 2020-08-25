@@ -60,8 +60,6 @@ def load_id2name(kb_path, alias_path):
                 info = '\t'.join([tokens[26], tokens[27], tokens[28]])
             elif src == 'APB':
                 info = tokens[35]
-            elif src == 'AIDA_AUG_PHASE1':
-                info = ''
             else:
                 info = ''
             id2name[eid] = name
