@@ -100,7 +100,8 @@ class Indexer:
 class Searcher:
     def __init__(self, indexDir):
         self.directory = SimpleFSDirectory(Paths.get(indexDir))
-        self.searcher = IndexSearcher(DirectoryReader.open(self.directory))
+        self.reader = DirectoryReader.open(self.directory)
+        self.searcher = IndexSearcher(self.reader)
         self.nameQueryParser = QueryParser('name', StandardAnalyzer())
         self.nameQueryParser.setDefaultOperator(QueryParser.Operator.AND)
         self.idQueryParser = QueryParser('id', StandardAnalyzer())
@@ -127,6 +128,10 @@ class Searcher:
             tables.append(table)
         
         return tables
+
+    def close(self):
+        self.directory.close()
+        self.reader.close()
 
 def iou(str1, str2):
     tokens1 = set(str1.split())
@@ -377,6 +382,7 @@ class TemporaryKB(object):
             # print(ent_name, ent_type)
             searcher = Searcher(self.tmp_index_dir)
             results = searcher.find_by_name(ent_name)
+            searcher.close()
             # print(results)
             results = filter(lambda x: x['type'] == ent_type, results)
             if results is None or len(results) == 0:
