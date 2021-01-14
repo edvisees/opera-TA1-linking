@@ -20,6 +20,12 @@ from collections import defaultdict
 import csv
 import traceback
 
+# --
+# https://pypi.org/project/Unidecode/
+# pip install Unidecode
+from unidecode import unidecode
+# --
+
 # nasty hack to fix "UnicodeDecodeError: ascii codec can't decode..."
 # stackoverflow.com/questions/3828723/why-should-we-not-use-sys-setdefaultencodingutf-8-in-a-py-script
 reload(sys)
@@ -151,14 +157,18 @@ class EntityLinker(object):
             return self.searcher.find_by_name(name)
         else:
             terms = name.split(' ')
-            query = ' '.join(['{}~{}'.format(term, dist) for term in terms])
+            # --
+            # note: strange problem with key words and/or/not, ignore them!!
+            _KEY_WORDS = {"and", "or", "not"}
+            query = ' '.join([('{}~{}'.format(term, dist) if term.lower() not in _KEY_WORDS else term) for term in terms])
+            # --
             # print(query)
             return self.searcher.find_by_name(query)
         
     def score_candidates(self, candidates, ent_name, ent_type):
         # filter by type
         if ent_type == 'GPE' or ent_type == 'LOC' or ent_type == 'FAC':
-            candidates = filter(lambda x: x['type'] in ['GPE', 'LOC'], candidates)
+            candidates = filter(lambda x: x['type'] in ['GPE', 'LOC', 'FAC'], candidates)
         elif ent_type == 'ORG':
             candidates = filter(lambda x: x['type'] == 'ORG', candidates)
         elif ent_type == 'PER':
@@ -316,7 +326,19 @@ class EntityLinker(object):
         candidates.sort(key=lambda x: -x['confidence'])
         return candidates
 
+    # --
+    # fall back to normalized version!!
     def query(self, ne, sentence):
+        results = self._query(ne, sentence)
+        if results == 'none':
+            ne2 = ne.copy()
+            ne2['mention'] = unidecode(ne2['mention'].decode("utf-8"))
+            if ne2['mention'] != ne['mention']:
+                results = self._query(ne2, sentence)
+        return results
+    # --
+
+    def _query(self, ne, sentence):
         ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
         # print(ent_name, ent_type)
         try:
@@ -375,7 +397,19 @@ class TemporaryKB(object):
         # print '$$', self.searcher.find_by_name(name)
         return '@{}'.format(self.count-1)
 
+    # --
+    # fall back to normalized version!!
     def query(self, ne):
+        results = self._query(ne)
+        if results == 'none':
+            ne2 = ne.copy()
+            ne2['mention'] = unidecode(ne2['mention'].decode("utf-8"))
+            if ne2['mention'] != ne['mention']:
+                results = self._query(ne2)
+        return results
+    # --
+
+    def _query(self, ne):
         try:
             ent_name, ent_type = ne['mention'].lower(), ne['type'][7:10]
             # print 'querying', ent_name, ent_type
@@ -472,6 +506,12 @@ if __name__ == '__main__':
                 os.path.join(args.index_dir, 'cleaned.tab'),
                 os.path.join(args.index, 'data/alternate_names.tab')):
             indexer.index(eid, name, cname, type, info)
+            # --
+            # normed name
+            normed_name = unidecode(name.decode("utf-8"))
+            if normed_name != name:
+                indexer.index(eid, normed_name, cname, type, info)
+            # --
         indexer.close()
     elif args.run:
         lucene.initVM(vmargs=['-Djava.awt.headless=true'])
