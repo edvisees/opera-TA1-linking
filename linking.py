@@ -482,6 +482,7 @@ if __name__ == '__main__':
     parser.add_argument('--in_dir', type=str)
     parser.add_argument('--out_dir', type=str)
     parser.add_argument('--map_file', type=str)
+    parser.add_argument('--overwrite', action='store_true', help="Overwrite existing refkb from other components")
     args = parser.parse_args()
 
     print "Using country codes: " + " ".join(args.country_codes)
@@ -637,7 +638,10 @@ if __name__ == '__main__':
                         # print result
                         if 'xref' not in frame['interp']:
                             frame['interp']['xref'] = []
-                        frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
+                        if args.overwrite:  # excluding existing ones!
+                            frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang" and not x.get('id', '').startswith("refkb:"), frame['interp']['xref'])
+                        else:
+                            frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
                         if any(x.get('id', '').startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
                             continue
                         frame['interp']['xref'].append({"@type": "db_reference", 
@@ -761,7 +765,10 @@ if __name__ == '__main__':
                         for eid in coref_cluster:
                             frame = id2entity[eid]
                             if 'xref' in frame['interp']:
-                                frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
+                                if args.overwrite:  # excluding existing ones!
+                                    frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang" and not x.get('id', '').startswith("refkb:"), frame['interp']['xref'])
+                                else:
+                                    frame['interp']['xref'] = filter(lambda x: x.get('component') != "opera.entities.edl.refkb.xianyang", frame['interp']['xref'])
                                 if any(x.get('id', '').startswith("refkb:") and x.get('component') != "opera.entities.edl.refkb.xianyang" for x in frame['interp']['xref']):
                                     continue
                                 frame['interp']['xref'].append(final_linking)
