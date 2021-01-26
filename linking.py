@@ -192,10 +192,11 @@ class EntityLinker(object):
         # find exact match
         for i, candidate in enumerate(candidates):
             # print candidate['name'].lower(), ent_name
-            if candidate['name'].lower().encode('utf-8') == ent_name:
-                scores[i] += 1
-            elif ent_name in candidate['name'].lower().encode('utf-8'):
-                scores[i] += 0.5
+            for _key in ['name', 'CannonicalName']:
+                if candidate[_key].lower().encode('utf-8') == ent_name:
+                    scores[i] += 1
+                elif ent_name in candidate[_key].lower().encode('utf-8'):
+                    scores[i] += 0.5
 
         # filter by type
         for i, candidate in enumerate(candidates):
@@ -207,6 +208,17 @@ class EntityLinker(object):
             if candidate['info'] == '': continue
             if len(candidate['info'].split('\t')) == 3: # candidate['info'].split('\t')[2] != '':
                 scores[i] += 1
+                # --
+                # further check wiki link
+                _wiki_link = candidate['info'].split('\t')[2].encode('utf-8')
+                _wiki_link = _wiki_link.split("|")[0]  # split if there are too many
+                if _wiki_link.startswith("http://en.wikipedia.org/wiki/"):
+                    wiki_entry = _wiki_link[len("http://en.wikipedia.org/wiki/"):]
+                    if wiki_entry.lower() == ent_name:
+                        scores[i] += 1  # directly hit
+                    else:  # prefer shorter entry!
+                        scores[i] += 0.5 * len(ent_name)/len(wiki_entry)
+                # --
 
         # filter by country
         if ent_type == 'GPE' or ent_type == 'LOC':
@@ -214,6 +226,8 @@ class EntityLinker(object):
                 if candidate['info'] == '': continue
                 if candidate['info'].split('\t')[1] == 'country,state,region,...':
                     scores[i] += 1
+                if candidate['info'].split('\t')[1] == 'city,village,...':
+                    scores[i] += 0.5
                 if candidate['info'].split('\t')[0] in self.country_codes:
                     scores[i] += 1
                 if candidate['info'].split('\t')[0] == 'US' or candidate['info'].split('\t')[0] == 'CA':
